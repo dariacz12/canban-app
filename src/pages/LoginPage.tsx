@@ -44,7 +44,7 @@ type FormData = {
   image: string;
 };
 
-export default function RegisterPage() {
+export default function LoginPage() {
   const {
     register,
     handleSubmit,
@@ -63,21 +63,21 @@ export default function RegisterPage() {
         alignItems="center"
         justifyContent="center"
       >
-        <Card minW="450px">
+        <Card minW={[300, 450]} maxW={[300, 450]}>
           <CardHeader>
-            <Heading size="md">Register</Heading>
+            <Heading size="md">Login</Heading>
           </CardHeader>
           <CardBody>
             <Stack divider={<StackDivider />} spacing="4">
               <Box>
                 <Heading size="xs" textTransform="uppercase">
-                  Create new account
+                  Welcome back!
                 </Heading>
                 <Text pt="2" fontSize="sm">
-                  Already a Member?
+                  Don't have an account?
                   <Link color="teal.500" href="#">
                     {" "}
-                    Log In
+                    Sign In
                   </Link>
                 </Text>
               </Box>
@@ -86,14 +86,6 @@ export default function RegisterPage() {
                   style={{ display: "flex", flexDirection: "column" }}
                   onSubmit={handleSubmit(onSubmit)}
                 >
-                  <Field>
-                    <FormLabel>Name</FormLabel>
-                    <Input
-                      placeholder="Name"
-                      {...register("name", { required: true })}
-                    />
-                    {errors.name && <span>This field is required</span>}
-                  </Field>
                   <Field>
                     <FormLabel>Email</FormLabel>
                     <Input
@@ -129,14 +121,10 @@ export default function RegisterPage() {
                         </Button>
                       </InputRightElement>
                     </InputGroup>
-
                     {errors.password && <span>This field is required</span>}
                   </Field>
-                  <Field>
-                    <Dropzone></Dropzone>
-                  </Field>
                   <Button bg="#285D3D" m={3} type="submit" colorScheme="blue">
-                    Register
+                    Login
                   </Button>
                 </form>
               </Box>
@@ -149,15 +137,15 @@ export default function RegisterPage() {
         bg="#285D3D"
         width={"100%"}
         minH="100vh"
-        mt={[100, 100, 100, 0]}
+        mt={[50, 100, 100, 0]}
         flex="1"
         display="flex"
         alignItems="center"
         justifyContent="center"
       >
         <Image
-          maxW="450px"
-          src={require("../photos/register.jpg")}
+          maxW={[300, 450]}
+          src={require("../photos/login.jpg")}
           alt="register photo"
         />
       </Box>
