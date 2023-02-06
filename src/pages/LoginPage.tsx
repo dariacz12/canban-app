@@ -19,8 +19,11 @@ import styled from "styled-components";
 import { Image } from "@chakra-ui/react";
 import { Link } from "@chakra-ui/react";
 import { size } from "../size";
-import { useState } from "react";
-import Dropzone from "../components/Dropzone";
+import { useContext, useState } from "react";
+import { useMutation } from "react-query";
+import { loginUser } from "../api";
+import { LoginContext } from "../contexts/LoginContext";
+import { redirect, useNavigate } from "react-router-dom";
 
 const MainContainer = styled.div`
   display: flex;
@@ -50,7 +53,26 @@ export default function LoginPage() {
     handleSubmit,
     formState: { errors },
   } = useForm<FormData>();
-  const onSubmit: SubmitHandler<FormData> = (data) => console.log(data);
+
+  const navigate = useNavigate();
+
+  const loginNewUser = useMutation(loginUser, {
+    onSuccess: (res) => {
+      console.log(1, res);
+      setData({ token: res.data.access, refreshToken: res.data.refresh });
+      alert("Success login!");
+      navigate("/dashboard", { replace: true });
+    },
+    onError: () => {
+      alert("Something went wrong!");
+    },
+  });
+  const { setData } = useContext(LoginContext);
+
+  const onSubmit: SubmitHandler<FormData> = (data) => {
+    console.log(data);
+    loginNewUser.mutate({ email: data.email, password: data.password });
+  };
   const [show, setShow] = useState<Boolean>(false);
   const handleClick = () => setShow(!show);
 
@@ -65,7 +87,12 @@ export default function LoginPage() {
       >
         <Card minW={[300, 450]} maxW={[300, 450]}>
           <CardHeader>
-            <Heading size="md">Login</Heading>
+            <Image
+              maxW="200px"
+              objectFit="cover"
+              src={require("../photos/logo.jpg")}
+              alt="Logo"
+            />
           </CardHeader>
           <CardBody>
             <Stack divider={<StackDivider />} spacing="4">
@@ -123,7 +150,7 @@ export default function LoginPage() {
                     </InputGroup>
                     {errors.password && <span>This field is required</span>}
                   </Field>
-                  <Button bg="#285D3D" m={3} type="submit" colorScheme="blue">
+                  <Button m={3} type="submit" colorScheme="brand">
                     Login
                   </Button>
                 </form>
@@ -134,7 +161,7 @@ export default function LoginPage() {
       </Box>
 
       <Box
-        bg="#285D3D"
+        bg="#1a202c"
         width={"100%"}
         minH="100vh"
         mt={[50, 100, 100, 0]}
