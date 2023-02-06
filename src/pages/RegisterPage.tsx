@@ -21,6 +21,8 @@ import { Link } from "@chakra-ui/react";
 import { size } from "../size";
 import { useState } from "react";
 import Dropzone from "../components/Dropzone";
+import { useMutation, useQueryClient } from "react-query";
+import { createAccount, loginUser } from "../api";
 
 const MainContainer = styled.div`
   display: flex;
@@ -37,7 +39,7 @@ const Field = styled.label`
   padding: 15px;
 `;
 
-type FormData = {
+export type FormData = {
   name: string;
   email: string;
   password: string;
@@ -50,10 +52,32 @@ export default function RegisterPage() {
     handleSubmit,
     formState: { errors },
   } = useForm<FormData>();
-  const onSubmit: SubmitHandler<FormData> = (data) => console.log(data);
-  const [show, setShow] = useState<Boolean>(false);
+  const queryClient = useQueryClient();
+
+  const createNewAccount = useMutation(createAccount, {
+    onSuccess: () => {
+      alert("Success registretion!");
+    },
+    onError: () => {
+      alert("Something went wrong!");
+    },
+  });
+
+  const loginNewUser = useMutation(loginUser, {
+    onSuccess: () => {
+      alert("Success login!");
+    },
+    onError: () => {
+      alert("Something went wrong!");
+    },
+  });
+  const [show, setShow] = useState<Boolean>();
   const handleClick = () => setShow(!show);
 
+  const onSubmit = (data: FormData) => {
+    createNewAccount.mutate(data);
+    loginNewUser.mutate({ email: data.email, password: data.password });
+  };
   return (
     <MainContainer>
       <Box
@@ -65,7 +89,12 @@ export default function RegisterPage() {
       >
         <Card minW="450px">
           <CardHeader>
-            <Heading size="md">Register</Heading>
+            <Image
+              maxW="200px"
+              objectFit="cover"
+              src={require("../photos/logo.jpg")}
+              alt="Logo"
+            />
           </CardHeader>
           <CardBody>
             <Stack divider={<StackDivider />} spacing="4">
@@ -135,7 +164,7 @@ export default function RegisterPage() {
                   <Field>
                     <Dropzone></Dropzone>
                   </Field>
-                  <Button bg="#285D3D" m={3} type="submit" colorScheme="blue">
+                  <Button bg="#1a202c" m={3} type="submit" colorScheme="blue">
                     Register
                   </Button>
                 </form>
@@ -146,7 +175,7 @@ export default function RegisterPage() {
       </Box>
 
       <Box
-        bg="#285D3D"
+        bg="#1a202c"
         width={"100%"}
         minH="100vh"
         mt={[100, 100, 100, 0]}
