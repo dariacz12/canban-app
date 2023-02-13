@@ -8,6 +8,7 @@ import MainPage from "./pages/MainPage";
 import DashboardLayout from "./components/DashboardLayout";
 import { ChakraProvider } from "@chakra-ui/react";
 import { theme } from "./theme";
+import SettingPage from "./pages/SettingPage";
 
 const queryClient = new QueryClient();
 function App() {
@@ -21,6 +22,7 @@ function App() {
             <Route element={<Protected />}>
               <Route element={<DashboardLayout />}>
                 <Route path="/dashboard" element={<MainPage />} />
+                <Route path="/settings" element={<SettingPage />} />
               </Route>
             </Route>
           </Routes>

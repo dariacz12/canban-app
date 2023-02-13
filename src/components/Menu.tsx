@@ -6,6 +6,7 @@ import {
   UnorderedListOutlined,
   UserOutlined,
 } from "@ant-design/icons";
+
 import type { MenuProps } from "antd";
 import { Layout, Menu, theme } from "antd";
 import { Box, Image } from "@chakra-ui/react";
@@ -33,13 +34,13 @@ const MenuElement: React.FC = () => {
   const navigate = useNavigate();
   const { setData } = useContext(LoginContext);
   const items: MenuItem[] = [
-    getItem("User", "sub1", <UserOutlined />),
+    getItem("User", "1", <UserOutlined />),
     getItem("New Board", "2", <AppstoreAddOutlined />),
-    getItem("Board List", "sub2", <UnorderedListOutlined />, [
-      getItem("Team 1", "6"),
-      getItem("Team 2", "8"),
+    getItem("Board List", "3", <UnorderedListOutlined />, [
+      getItem("Board 1", "6"),
+      getItem("Board 2", "8"),
     ]),
-    getItem("Settings", "1", <SettingOutlined />),
+    getItem("Settings", "7", <SettingOutlined />),
     getItem("LogOut", "9", <LogoutOutlined />),
   ];
   const [collapsed, setCollapsed] = useState(false);
@@ -55,6 +56,9 @@ const MenuElement: React.FC = () => {
         refreshToken: "",
       });
       navigate("/login");
+    } else if (e.key === "1" || "7") {
+      navigate("/settings");
+    } else if (e.key === "2") {
     }
   };
   return (
@@ -78,12 +82,16 @@ const MenuElement: React.FC = () => {
             maxW="100px"
             objectFit="cover"
             src={require("../photos/logo-removebg-preview.jpg")}
+            style={{ cursor: "pointer" }}
+            onClick={() => navigate("/dashboard")}
           />
         ) : (
           <Image
             maxW="30px"
             objectFit="cover"
             src={require("../photos/smalllogo.jpg")}
+            style={{ cursor: "pointer" }}
+            onClick={() => navigate("/dashboard")}
           />
         )}
       </div>
