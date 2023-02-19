@@ -4,7 +4,6 @@ import {
   Card,
   CardBody,
   CardHeader,
-  FormControl,
   FormLabel,
   Heading,
   Input,
@@ -20,7 +19,7 @@ import { Image } from "@chakra-ui/react";
 import { Link } from "@chakra-ui/react";
 import { size } from "../size";
 import { useContext, useState } from "react";
-import { useMutation } from "react-query";
+import { QueryClient, useMutation, useQueryClient } from "react-query";
 import { loginUser } from "../api";
 import { LoginContext } from "../contexts/LoginContext";
 import { redirect, useNavigate } from "react-router-dom";
@@ -56,22 +55,25 @@ export default function LoginPage() {
 
   const navigate = useNavigate();
 
+  // const queryClient = useQueryClient()
+
   const loginNewUser = useMutation(loginUser, {
     onSuccess: (res) => {
-      console.log(1, res);
-      setData({ token: res.data.access, refreshToken: res.data.refresh });
+      setData({ token: res.data.token, refreshToken: res.data.refresh });
       alert("Success login!");
       navigate("/dashboard", { replace: true });
     },
     onError: () => {
       alert("Something went wrong!");
     },
+    onSettled: () => {
+      // queryClient.invalidateQueries(['userData'])
+    },
   });
   const { setData } = useContext(LoginContext);
 
-  const onSubmit: SubmitHandler<FormData> = (data) => {
-    console.log(data);
-    loginNewUser.mutate({ email: data.email, password: data.password });
+  const onSubmit: SubmitHandler<FormData> = ({ email, password }) => {
+    loginNewUser.mutate({ email, password });
   };
   const [show, setShow] = useState<Boolean>(false);
   const handleClick = () => setShow(!show);

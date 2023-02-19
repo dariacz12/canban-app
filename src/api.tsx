@@ -1,7 +1,7 @@
 import axios from "axios";
+import { isConstructorDeclaration } from "typescript";
 
-export const BASE_URL = "";
-export const LOGIN_URL = "http://localhost:8000/api/token";
+export const BASE_URL = "http://localhost:8000";
 
 type UserData = {
   name: string;
@@ -13,15 +13,35 @@ type UserData = {
 type LoginData = {
   data: {
     refresh: string;
-    access: string;
+    token: string;
   };
 };
-export const createAccount = async (user: object): Promise<UserData> =>
-  axios.post(`${BASE_URL}`, user, {
-    headers: {
-      "Content-Type": "application/json",
+type UserPersonalData = {
+  email: string;
+  first_name: string;
+  last_name: string;
+  username: string;
+};
+export const createAccount = async ({
+  email,
+  name,
+  password,
+  image,
+}: UserData): Promise<UserData> =>
+  axios.post(
+    `${BASE_URL}/api/register`,
+    {
+      email,
+      password,
+      username: Math.random() * 1000,
+      first_name: name,
     },
-  });
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
 
 export const loginUser = async ({
   email,
@@ -31,12 +51,24 @@ export const loginUser = async ({
   password: string;
 }): Promise<LoginData> =>
   axios.post(
-    `${LOGIN_URL}`,
+    `${BASE_URL}/api/login`,
 
-    { username: email, password },
+    { email, password },
     {
       headers: {
         "Content-Type": "application/json",
       },
     }
   );
+
+export const getUserData = async (): Promise<UserPersonalData> => {
+  return (
+    await axios.get(`${BASE_URL}/api/user`, {
+      headers: {
+        Authorization: `Bearer ${
+          JSON.parse(localStorage.getItem("loginData") || "").token
+        }`,
+      },
+    })
+  ).data;
+};
