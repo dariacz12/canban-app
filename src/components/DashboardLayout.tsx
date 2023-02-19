@@ -14,8 +14,10 @@ import {
   Text,
   WrapItem,
 } from "@chakra-ui/react";
-import BurgerMenu from "./BurgerMenu";
 import { useNavigate } from "react-router-dom";
+import BurgerMenu from "./BurgerMenu";
+import { useMutation, useQuery } from "react-query";
+import { getUserData } from "../api";
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -25,6 +27,9 @@ const DashboardLayout = () => {
   const {
     token: { colorBgContainer },
   } = theme.useToken();
+
+  const { data, isLoading, isError } = useQuery("userData", getUserData);
+  console.log("userData", data?.first_name);
   return (
     <ConfigProvider
       theme={{
@@ -92,7 +97,7 @@ const DashboardLayout = () => {
                     justifyContent={"flex-end"}
                   >
                     <Text fontWeight="bold" height={"20px"} color={"#f5f5f5"}>
-                      Segun Adebayo
+                      {data?.first_name}
                     </Text>
                     <Text fontSize="sm" height={"40px"} color={"#f5f5f5"}>
                       Dashboard

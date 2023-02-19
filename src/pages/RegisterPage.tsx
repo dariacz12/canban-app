@@ -19,10 +19,12 @@ import styled from "styled-components";
 import { Image } from "@chakra-ui/react";
 import { Link } from "@chakra-ui/react";
 import { size } from "../size";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import Dropzone from "../components/Dropzone";
 import { useMutation, useQueryClient } from "react-query";
 import { createAccount, loginUser } from "../api";
+import { useNavigate } from "react-router-dom";
+import { LoginContext } from "../contexts/LoginContext";
 
 const MainContainer = styled.div`
   display: flex;
@@ -64,19 +66,27 @@ export default function RegisterPage() {
   });
 
   const loginNewUser = useMutation(loginUser, {
-    onSuccess: () => {
+    onSuccess: (res) => {
+      setData({ token: res.data.token, refreshToken: res.data.refresh });
       alert("Success login!");
+      navigate("/dashboard", { replace: true });
     },
     onError: () => {
       alert("Something went wrong!");
     },
   });
+  const { setData } = useContext(LoginContext);
   const [show, setShow] = useState<Boolean>();
   const handleClick = () => setShow(!show);
 
-  const onSubmit = (data: FormData) => {
-    createNewAccount.mutate(data);
-    loginNewUser.mutate({ email: data.email, password: data.password });
+  const navigate = useNavigate();
+
+  const onSubmit = async (data: FormData) => {
+    await createNewAccount.mutateAsync(data);
+    await loginNewUser.mutateAsync({
+      email: data.email,
+      password: data.password,
+    });
   };
   return (
     <MainContainer>
