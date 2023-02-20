@@ -25,6 +25,7 @@ const testBoardTable = [
   { id: 5, imageName: "boardelementphototest5", boardName: "Test Board 5" },
   { id: 6, imageName: "boardelementphototest6", boardName: "Test Board 6" },
 ];
+
 const MainPage = () => {
   const [state, setState] =
     useState<Array<{ id: number; imageName: string; boardName: string }>>(
@@ -57,6 +58,8 @@ const MainPage = () => {
         );
     console.log("posortowane", testBoardTable);
   };
+
+  const [searchInput, setSearchInput] = useState("");
 
   return (
     <div>
@@ -93,12 +96,28 @@ const MainPage = () => {
             ) : (
               <span style={{ width: "800px" }}></span>
             )}
-            <Input placeholder="Basic usage" maxWidth={200} />
+            <Input
+              placeholder="Search here"
+              type="search"
+              onChange={(e) => setSearchInput(e.target.value)}
+              value={searchInput}
+              maxWidth={200}
+            />
           </WrapSelect>
           <Wrap>
-            {state.map(({ imageName, boardName }) => (
-              <BoardElement imageName={imageName} boardName={boardName} />
-            ))}
+            {state
+              .filter((item) => {
+                return searchInput.toLocaleLowerCase() === ""
+                  ? item
+                  : item.boardName.toLowerCase().includes(searchInput);
+              })
+              .map(({ imageName, boardName }) => (
+                <BoardElement
+                  key={boardName}
+                  imageName={imageName}
+                  boardName={boardName}
+                />
+              ))}
           </Wrap>
         </CardBody>
       </Card>
