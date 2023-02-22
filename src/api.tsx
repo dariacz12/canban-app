@@ -22,6 +22,15 @@ type UserPersonalData = {
   last_name: string;
   username: string;
 };
+type TableData = {
+  title: string;
+  imageName: string;
+};
+type TableListData = {
+  id: number;
+  name: string;
+  imageUrl: string;
+}[];
 export const createAccount = async ({
   email,
   name,
@@ -64,6 +73,36 @@ export const loginUser = async ({
 export const getUserData = async (): Promise<UserPersonalData> => {
   return (
     await axios.get(`${BASE_URL}/api/user`, {
+      headers: {
+        Authorization: `Bearer ${
+          JSON.parse(localStorage.getItem("loginData") || "").token
+        }`,
+      },
+    })
+  ).data;
+};
+export const createTable = async ({
+  title,
+  imageName,
+}: TableData): Promise<TableData> =>
+  axios.post(
+    `${BASE_URL}/api/board`,
+    {
+      id: Math.random() * 1000,
+      name: title,
+      imageUrl: imageName,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${
+          JSON.parse(localStorage.getItem("loginData") || "").token
+        }`,
+      },
+    }
+  );
+export const getTableList = async (): Promise<TableListData> => {
+  return (
+    await axios.get(`${BASE_URL}/api/board/list`, {
       headers: {
         Authorization: `Bearer ${
           JSON.parse(localStorage.getItem("loginData") || "").token

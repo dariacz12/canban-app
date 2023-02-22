@@ -114,7 +114,7 @@ export default function RegisterPage() {
                 </Heading>
                 <Text pt="2" fontSize="sm">
                   Already a Member?
-                  <Link color="teal.500" href="#">
+                  <Link color="teal.500" href="/login">
                     {" "}
                     Log In
                   </Link>

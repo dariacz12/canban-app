@@ -1,4 +1,5 @@
 import { Card, FormLabel, Wrap } from "@chakra-ui/react";
+import { useState } from "react";
 import { Type } from "typescript";
 import BackgroundElement from "./BackgroundElement";
 
@@ -19,20 +20,34 @@ const backgroundBoardTable = [
 
 const AddBackgroundImage = ({
   onChange,
+  imageName,
 }: {
   onChange: (imageName: string) => void;
+  imageName: string;
 }) => {
   return (
     <>
       <FormLabel>Choose Background Image for your Board: </FormLabel>
-      <Wrap>
-        {backgroundBoardTable.map(({ imageName }) => (
+      <Wrap
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        {backgroundBoardTable.map(({ imageName: itemImageName }) => (
           <div
             onClick={() => {
-              onChange(imageName);
+              onChange(itemImageName);
             }}
           >
-            <BackgroundElement imageName={imageName} />
+            <BackgroundElement
+              style={{
+                backgroundColor:
+                  itemImageName === imageName ? "#53735E" : undefined,
+              }}
+              imageName={itemImageName}
+            />
           </div>
         ))}
       </Wrap>

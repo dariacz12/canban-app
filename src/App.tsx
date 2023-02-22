@@ -10,6 +10,7 @@ import { ChakraProvider } from "@chakra-ui/react";
 import { theme } from "./theme";
 import SettingPage from "./pages/SettingPage";
 import MainPage from "./pages/MainPage";
+import TablePage from "./pages/TablePage";
 
 const queryClient = new QueryClient();
 function App() {
@@ -24,6 +25,7 @@ function App() {
               <Route element={<DashboardLayout />}>
                 <Route path="/dashboard" element={<MainPage />} />
                 <Route path="/settings" element={<SettingPage />} />
+                <Route path="/tablepage/:tableId" element={<TablePage />} />
               </Route>
             </Route>
           </Routes>

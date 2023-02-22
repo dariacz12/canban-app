@@ -104,7 +104,7 @@ export default function LoginPage() {
                 </Heading>
                 <Text pt="2" fontSize="sm">
                   Don't have an account?
-                  <Link color="teal.500" href="#">
+                  <Link color="teal.500" href="/register">
                     {" "}
                     Sign In
                   </Link>
