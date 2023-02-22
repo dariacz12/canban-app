@@ -3,9 +3,10 @@ import useMediaQuery, { MediaQueryKey } from "use-media-antd-query";
 
 import styled from "styled-components";
 import AddNewBoard from "../components/AddNewBoard";
-
+import { useQuery } from "react-query";
 import BoardElement from "../components/forms/BoardElement";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getTableList } from "../api";
 
 const Wrap = styled.div`
   display: flex;
@@ -27,35 +28,49 @@ const testBoardTable = [
 ];
 
 const MainPage = () => {
-  const [state, setState] =
-    useState<Array<{ id: number; imageName: string; boardName: string }>>(
-      testBoardTable
+  const [state, setState] = useState<
+    Array<{ id: number; imageName: string; boardName: string }> | undefined
+  >();
+  const { data } = useQuery("tableList", getTableList);
+  useEffect(() => {
+    setState(
+      data?.map(({ id, name, imageUrl }) => ({
+        id,
+        boardName: name,
+        imageName: imageUrl,
+      }))
     );
+  }, [data]);
+
+  console.log("tableList", data);
+
   const mediaQuery = useMediaQuery();
   const sortTable = (value: string) => {
-    value === "A-Z"
-      ? setState(
-          [...state].sort((a, b) => {
-            if (a.boardName < b.boardName) {
-              return -1;
-            }
-            if (a.boardName > b.boardName) {
-              return 1;
-            }
-            return 0;
-          })
-        )
-      : setState(
-          [...state].sort((a, b) => {
-            if (a.boardName > b.boardName) {
-              return -1;
-            }
-            if (a.boardName > b.boardName) {
-              return 1;
-            }
-            return 0;
-          })
-        );
+    if (state) {
+      value === "A-Z"
+        ? setState(
+            [...state].sort((a, b) => {
+              if (a.boardName < b.boardName) {
+                return -1;
+              }
+              if (a.boardName > b.boardName) {
+                return 1;
+              }
+              return 0;
+            })
+          )
+        : setState(
+            [...state].sort((a, b) => {
+              if (a.boardName > b.boardName) {
+                return -1;
+              }
+              if (a.boardName > b.boardName) {
+                return 1;
+              }
+              return 0;
+            })
+          );
+    }
     console.log("posortowane", testBoardTable);
   };
 
@@ -105,19 +120,20 @@ const MainPage = () => {
             />
           </WrapSelect>
           <Wrap>
-            {state
-              .filter((item) => {
-                return searchInput.toLocaleLowerCase() === ""
-                  ? item
-                  : item.boardName.toLowerCase().includes(searchInput);
-              })
-              .map(({ imageName, boardName }) => (
-                <BoardElement
-                  key={boardName}
-                  imageName={imageName}
-                  boardName={boardName}
-                />
-              ))}
+            {state &&
+              state
+                .filter((item) => {
+                  return searchInput.toLocaleLowerCase() === ""
+                    ? item
+                    : item.boardName.toLowerCase().includes(searchInput);
+                })
+                .map(({ imageName, boardName }) => (
+                  <BoardElement
+                    key={boardName}
+                    imageName={imageName}
+                    boardName={boardName}
+                  />
+                ))}
           </Wrap>
         </CardBody>
       </Card>

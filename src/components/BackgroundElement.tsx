@@ -1,8 +1,18 @@
 import { Card, CardBody, Image } from "@chakra-ui/react";
 
-const BackgroundElement = ({ imageName }: { imageName: string }) => {
+const BackgroundElement = ({
+  imageName,
+  style,
+}: {
+  imageName: string;
+  style: React.CSSProperties | undefined;
+}) => {
+  console.log("image", imageName);
   return (
-    <Card maxW="2xs" style={{ margin: "20px", display: "flex" }}>
+    <Card
+      maxW="2xs"
+      style={{ maxWidth: "100vw", margin: "20px", display: "flex", ...style }}
+    >
       <CardBody>
         <Image
           src={require(`../photos/${imageName}.jpg`)}

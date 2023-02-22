@@ -18,6 +18,7 @@ import { useNavigate } from "react-router-dom";
 import BurgerMenu from "./BurgerMenu";
 import { useMutation, useQuery } from "react-query";
 import { getUserData } from "../api";
+import { useLocation } from "react-router-dom";
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -30,6 +31,7 @@ const DashboardLayout = () => {
 
   const { data, isLoading, isError } = useQuery("userData", getUserData);
   console.log("userData", data?.first_name);
+  const location = useLocation();
   return (
     <ConfigProvider
       theme={{
@@ -88,7 +90,9 @@ const DashboardLayout = () => {
                   <Box
                     ml="3"
                     paddingRight={"18px"}
-                    borderRight={"2px"}
+                    borderRight={
+                      location.pathname === "/dashboard" ? "2px" : "0px"
+                    }
                     borderRightColor={"#F2F2F2"}
                     height={"40px"}
                     display={"flex"}
@@ -96,12 +100,20 @@ const DashboardLayout = () => {
                     flexDirection={"column"}
                     justifyContent={"flex-end"}
                   >
-                    <Text fontWeight="bold" height={"20px"} color={"#f5f5f5"}>
-                      {data?.first_name}
-                    </Text>
-                    <Text fontSize="sm" height={"40px"} color={"#f5f5f5"}>
-                      Dashboard
-                    </Text>
+                    {location.pathname === "/dashboard" && (
+                      <>
+                        <Text
+                          fontWeight="bold"
+                          height={"20px"}
+                          color={"#f5f5f5"}
+                        >
+                          {data?.first_name}
+                        </Text>
+                        <Text fontSize="sm" height={"40px"} color={"#f5f5f5"}>
+                          Dashboard
+                        </Text>
+                      </>
+                    )}
                   </Box>
                   <Avatar
                     src={require("../photos/avatar.jpg")}

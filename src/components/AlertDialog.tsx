@@ -12,9 +12,12 @@ import {
   FormLabel,
   Input,
 } from "@chakra-ui/react";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { SubmitHandler, useForm, useWatch } from "react-hook-form";
 import { RefObject } from "react";
 import AddBackgroundImage from "./AddBackgroundImage";
+
+import { useMutation } from "react-query";
+import { createTable } from "../api";
 
 type Inputs = {
   title: string;
@@ -33,11 +36,26 @@ const AlertDialogNewBoard = ({
     setValue,
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<Inputs>();
-  const onSubmit: SubmitHandler<Inputs> = (data) => {
-    console.log("data", data);
+
+  const addNewTable = useMutation(createTable, {
+    onSuccess: () => {
+      alert("Your board was successfully created!");
+      onClose();
+    },
+    onError: () => {
+      alert("Something went wrong!");
+    },
+  });
+  const onSubmit: SubmitHandler<Inputs> = ({ title, imageName }) => {
+    addNewTable.mutate({ title, imageName });
+    console.log("data", { title, imageName });
   };
+
+  const imageName = watch("imageName");
+
   return (
     <AlertDialog
       motionPreset="slideInBottom"
@@ -66,6 +84,7 @@ const AlertDialogNewBoard = ({
                   <span style={{ color: "red" }}>This field is required!</span>
                 )}
                 <AddBackgroundImage
+                  imageName={imageName}
                   onChange={(imageName) => {
                     setValue("imageName", imageName);
                   }}
