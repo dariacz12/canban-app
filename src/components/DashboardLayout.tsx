@@ -134,9 +134,11 @@ const DashboardLayout = () => {
             </WrapItem>
           </Header>
           <MainLayout />
-          <Footer style={{ textAlign: "center" }}>
-            Ant Design ©2023 Created by Ant UED
-          </Footer>
+          {location.pathname === "/dashboard" && (
+            <Footer style={{ textAlign: "center" }}>
+              Ant Design ©2023 Created by Ant UED
+            </Footer>
+          )}
         </Layout>
       </Layout>
     </ConfigProvider>

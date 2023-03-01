@@ -1,12 +1,21 @@
-import { Card, CardBody, Heading, Input, Select } from "@chakra-ui/react";
+import {
+  Card,
+  CardBody,
+  Heading,
+  Image,
+  Input,
+  Select,
+} from "@chakra-ui/react";
 import useMediaQuery, { MediaQueryKey } from "use-media-antd-query";
 
 import styled from "styled-components";
 import AddNewBoard from "../components/AddNewBoard";
 import { useQuery } from "react-query";
-import BoardElement from "../components/forms/BoardElement";
+import BoardElement from "../components/BoardElement";
 import { useEffect, useState } from "react";
 import { getTableList } from "../api";
+import usePageList from "../customHooks/usePageList";
+import { useNavigate } from "react-router-dom";
 
 const Wrap = styled.div`
   display: flex;
@@ -28,21 +37,7 @@ const testBoardTable = [
 ];
 
 const MainPage = () => {
-  const [state, setState] = useState<
-    Array<{ id: number; imageName: string; boardName: string }> | undefined
-  >();
-  const { data } = useQuery("tableList", getTableList);
-  useEffect(() => {
-    setState(
-      data?.map(({ id, name, imageUrl }) => ({
-        id,
-        boardName: name,
-        imageName: imageUrl,
-      }))
-    );
-  }, [data]);
-
-  console.log("tableList", data);
+  const [state, setState] = usePageList();
 
   const mediaQuery = useMediaQuery();
   const sortTable = (value: string) => {
@@ -83,7 +78,24 @@ const MainPage = () => {
           <Heading size="md" style={{ marginBottom: "20px" }}>
             Create New Board
           </Heading>
-          <AddNewBoard />
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-around",
+            }}
+          >
+            <AddNewBoard />
+            {mediaQuery === "xs" ? undefined : mediaQuery ===
+              "sm" ? undefined : mediaQuery ===
+              "md" ? undefined : mediaQuery === "lg" ? undefined : (
+              <Image
+                src={require("../photos/dashboardphoto.png")}
+                maxW={"650px"}
+                borderRadius="lg"
+              />
+            )}
+          </div>
         </CardBody>
       </Card>
       <Card>
@@ -123,13 +135,15 @@ const MainPage = () => {
             {state &&
               state
                 .filter((item) => {
-                  return searchInput.toLocaleLowerCase() === ""
+                  return searchInput.toLowerCase() === ""
                     ? item
-                    : item.boardName.toLowerCase().includes(searchInput);
+                    : item.boardName
+                        .toLowerCase()
+                        .includes(searchInput.toLowerCase());
                 })
-                .map(({ imageName, boardName }) => (
+                .map(({ id, imageName, boardName }) => (
                   <BoardElement
-                    key={boardName}
+                    id={id}
                     imageName={imageName}
                     boardName={boardName}
                   />

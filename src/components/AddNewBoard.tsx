@@ -8,7 +8,7 @@ export default function AddNewBoard() {
 
   return (
     <>
-      <Card maxW="2xs" onClick={onOpen}>
+      <Card maxW="2xs" minW={"2xs"} marginLeft={"40px"} onClick={onOpen}>
         <CardBody>
           <Image src={require("../photos/addboard.png")} borderRadius="lg" />
         </CardBody>
