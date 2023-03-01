@@ -1,18 +1,22 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   AppstoreAddOutlined,
   LogoutOutlined,
+  MinusOutlined,
   SettingOutlined,
+  SwapRightOutlined,
   UnorderedListOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-
+import { getTableList } from "../api";
 import type { MenuProps } from "antd";
 import { Layout, Menu, theme } from "antd";
-import { Box, Image, useDisclosure } from "@chakra-ui/react";
+import { Box, Image, useDisclosure, useQuery } from "@chakra-ui/react";
 import { LoginContext } from "../contexts/LoginContext";
 import { useNavigate } from "react-router-dom";
 import AlertDialogNewBoard from "./AlertDialog";
+import usePageList from "../customHooks/usePageList";
+
 const { Sider } = Layout;
 
 type MenuItem = Required<MenuProps>["items"][number];
@@ -32,20 +36,26 @@ function getItem(
 }
 
 const MenuElement: React.FC = () => {
+  const [state] = usePageList();
+
   const { isOpen, onOpen, onClose } = useDisclosure();
   const cancelRef = React.useRef<HTMLButtonElement>(null);
 
   const navigate = useNavigate();
   const { setData } = useContext(LoginContext);
   const items: MenuItem[] = [
-    getItem("User", "1", <UserOutlined />),
-    getItem("New Board", "2", <AppstoreAddOutlined />),
-    getItem("Board List", "3", <UnorderedListOutlined />, [
-      getItem("Board 1", "6"),
-      getItem("Board 2", "8"),
-    ]),
-    getItem("Settings", "4", <SettingOutlined />),
-    getItem("LogOut", "5", <LogoutOutlined />),
+    getItem("User", "1item", <UserOutlined />),
+    getItem("New Board", "2item", <AppstoreAddOutlined />),
+    getItem(
+      "Board List",
+      "3item",
+      <UnorderedListOutlined />,
+      state?.map(({ id, boardName }) =>
+        getItem(`${boardName}`, `${id}`, <SwapRightOutlined />)
+      )
+    ),
+    getItem("Settings", "4item", <SettingOutlined />),
+    getItem("LogOut", "5item", <LogoutOutlined />),
   ];
   const [collapsed, setCollapsed] = useState(false);
   const {
@@ -54,19 +64,19 @@ const MenuElement: React.FC = () => {
 
   const onClick: MenuProps["onClick"] = (e) => {
     console.log("e", e);
-    if (e.key === "5") {
+    if (e.key === "5item") {
       setData({
         token: "",
         refreshToken: "",
       });
       navigate("/login");
-    } else if (e.key === "1") {
+    } else if (e.key === "1item") {
       navigate("/settings");
-    } else if (e.key === "2") {
+    } else if (e.key === "2item") {
       onOpen();
-    } else if (e.key === "4") {
+    } else if (e.key === "4item") {
       navigate("/settings");
-    }
+    } else navigate(`/tablepage/:${e.key}`);
   };
   return (
     <>

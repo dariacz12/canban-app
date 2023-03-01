@@ -65,7 +65,7 @@ const SettingPage = () => {
                 : mediaQuery === "md"
                 ? "40px 0px"
                 : "40px 80px",
-            width: "100%",
+            width: mediaQuery === "xxl" ? "500px" : undefined,
           }}
         >
           <CardBody>
@@ -92,7 +92,7 @@ const SettingPage = () => {
                 : mediaQuery === "md"
                 ? "40px 0px"
                 : "40px 80px",
-            width: "100%",
+            width: mediaQuery === "xxl" ? "500px" : undefined,
           }}
         >
           <CardBody>

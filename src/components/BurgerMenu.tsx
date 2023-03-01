@@ -26,11 +26,11 @@ const MenuItem = styled.div`
 `;
 
 const MenuItems = [
-  { name: "User", icon: <UserOutlined />, id: 1 },
-  { name: "New Board", icon: <AppstoreAddOutlined />, id: 2 },
-  { name: "Board List", icon: <UnorderedListOutlined />, id: 3 },
-  { name: "Settings", icon: <SettingOutlined />, id: 4 },
-  { name: "LogOut", icon: <LogoutOutlined />, id: 5 },
+  { name: "User", icon: <UserOutlined />, id: "1item" },
+  { name: "New Board", icon: <AppstoreAddOutlined />, id: "2item" },
+  { name: "Board List", icon: <UnorderedListOutlined />, id: "3item" },
+  { name: "Settings", icon: <SettingOutlined />, id: "4item" },
+  { name: "LogOut", icon: <LogoutOutlined />, id: "5item" },
 ];
 
 const BurgerMenu = () => {
@@ -76,18 +76,20 @@ const BurgerMenu = () => {
                     cursor: "pointer",
                   }}
                   onClick={() => {
-                    if (id === 5) {
+                    if (id === "5item") {
                       setData({
                         token: "",
                         refreshToken: "",
                       });
                       navigate("/login");
-                    } else if (id === 1) {
+                    } else if (id === "1item") {
                       navigate("/settings");
-                    } else if (id === 2) {
+                    } else if (id === "2item") {
                       onToggle();
                       onOpen();
-                    } else if (id === 4) {
+                    } else if (id === "3item") {
+                      navigate("/dashboard");
+                    } else if (id === "4item") {
                       navigate("/settings");
                     }
                   }}
