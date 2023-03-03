@@ -37,6 +37,7 @@ const AlertDialogNewBoard = ({
     register,
     handleSubmit,
     watch,
+    reset,
     formState: { errors },
   } = useForm<Inputs>();
 
@@ -55,12 +56,17 @@ const AlertDialogNewBoard = ({
   };
 
   const imageName = watch("imageName");
+  console.log(1, imageName);
+  const handleClick = () => {
+    reset();
+    onClose();
+  };
 
   return (
     <AlertDialog
       motionPreset="slideInBottom"
       leastDestructiveRef={cancelRef}
-      onClose={onClose}
+      onClose={handleClick}
       isOpen={isOpen}
       isCentered
       size={"2xl"}
@@ -78,10 +84,15 @@ const AlertDialogNewBoard = ({
                 <Input
                   placeholder="Board Title"
                   style={{ marginBottom: "20px" }}
-                  {...register("title", { required: true })}
+                  {...register("title", { required: true, maxLength: 18 })}
                 />
-                {errors.title && (
+                {errors.title?.type === "required" && (
                   <span style={{ color: "red" }}>This field is required!</span>
+                )}
+                {errors.title?.type === "maxLength" && (
+                  <p style={{ color: "red" }} role="alert">
+                    Max Length is 18 symbols
+                  </p>
                 )}
                 <AddBackgroundImage
                   imageName={imageName}
@@ -93,7 +104,7 @@ const AlertDialogNewBoard = ({
             </Card>
           </AlertDialogBody>
           <AlertDialogFooter>
-            <Button ref={cancelRef} onClick={onClose}>
+            <Button ref={cancelRef} onClick={handleClick}>
               Cancel
             </Button>
             <Button

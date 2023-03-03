@@ -35,7 +35,11 @@ const TableMenu = () => {
         <LeftMenu
           style={{ display: "flex", alignItems: "center", height: "70px" }}
         >
-          <Card shadow="2px" margin="0px 0px 0px 20px">
+          <Card
+            shadow="2px"
+            margin="0px 0px 0px 20px"
+            style={{ background: "rgba(204, 204, 204, 0)" }}
+          >
             <CardBody
               style={{
                 display: "flex",
@@ -44,25 +48,36 @@ const TableMenu = () => {
                 padding: 5,
               }}
             >
-              <Heading
-                size="md"
-                color="#001529"
-                margin="0px 5px"
-                fontWeight={"semibold"}
-              >
-                <Input
-                  focusBorderColor="#53735E"
-                  borderColor={"white"}
-                  _placeholder={{ color: "#261912" }}
-                  placeholder={
-                    state?.find(({ id }) => ":" + String(id) === tableId)
-                      ?.boardName
-                  }
-                ></Input>
-              </Heading>
+              {/* <Heading size="md" color="#001529" fontWeight={'semibold'}> */}
+              {/* focusBorderColor='#53735E'  */}
+              {/* color: '#261912' */}
+              <Input
+                focusBorderColor="#53735E"
+                border={"none"}
+                _placeholder={{
+                  color: "whitesmoke",
+                  position: "relative",
+                  fontWeight: "bold",
+                }}
+                placeholder={
+                  state?.find(({ id }) => ":" + String(id) === tableId)
+                    ?.boardName
+                }
+              ></Input>
+              {/* </Heading> */}
             </CardBody>
           </Card>
-          <Card style={{ marginLeft: "20px" }} shadow="2px">
+        </LeftMenu>
+        <RightMenu
+          style={{ display: "flex", alignItems: "center", height: "70px" }}
+        >
+          <Card
+            style={{
+              marginLeft: "20px",
+              background: "rgba(204, 204, 204, 0.5)",
+            }}
+            shadow="2px"
+          >
             <CardBody
               style={{
                 display: "flex",
@@ -72,27 +87,34 @@ const TableMenu = () => {
               }}
             >
               <StarIcon
-                style={{ color: activeStar ? "#53735E" : "gray" }}
+                style={{
+                  cursor: "pointer",
+                  color: activeStar ? "#53735E" : "whitesmoke",
+                  position: "relative",
+                }}
                 onClick={() => setActiveStar(!activeStar)}
               />
             </CardBody>
           </Card>
-        </LeftMenu>
-        <RightMenu
-          style={{ display: "flex", alignItems: "center", height: "70px" }}
-        >
-          <Card style={{ margin: "0px 20px" }} shadow="2px">
+          <Card
+            style={{
+              background: "rgba(204, 204, 204, 0.5)",
+              margin: "0px 20px",
+            }}
+            shadow="2px"
+          >
             <CardBody
               style={{
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 padding: 15,
+                cursor: "pointer",
               }}
+              onClick={() => onOpen()}
             >
               <ClearOutlined
-                style={{ color: "gray" }}
-                onClick={() => onOpen()}
+                style={{ color: "whitesmoke", position: "relative" }}
               />
             </CardBody>
           </Card>
