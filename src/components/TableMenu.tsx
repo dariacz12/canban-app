@@ -48,9 +48,6 @@ const TableMenu = () => {
                 padding: 5,
               }}
             >
-              {/* <Heading size="md" color="#001529" fontWeight={'semibold'}> */}
-              {/* focusBorderColor='#53735E'  */}
-              {/* color: '#261912' */}
               <Input
                 focusBorderColor="#53735E"
                 border={"none"}

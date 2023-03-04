@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import AddListButton from "../components/AddListButton";
 import AddListField from "../components/AddListField";
+import List from "../components/List";
 
 const TablePage = () => {
   const [activeAddList, setActiveAddList] = useState<boolean>(false);
   return (
-    <div style={{ marginTop: "10px" }}>
+    <div style={{ display: "flex", marginTop: "10px" }}>
       {!activeAddList && (
         <AddListButton
           setActiveAddList={setActiveAddList}
@@ -18,6 +19,7 @@ const TablePage = () => {
           activeAddList={activeAddList}
         />
       )}
+      <List />
     </div>
   );
 };

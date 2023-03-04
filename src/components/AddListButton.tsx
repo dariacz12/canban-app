@@ -11,7 +11,8 @@ const AddListButton = ({
   return (
     <Card
       onClick={() => setActiveAddList(!activeAddList)}
-      maxW="231px"
+      w="231px"
+      maxH={"60px"}
       style={{ marginLeft: "20px", background: "rgba(204, 204, 204, 0.5)" }}
       shadow="2px"
     >

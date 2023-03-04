@@ -31,7 +31,8 @@ const AddListField = ({
   return (
     <Card
       maxW="231px"
-      style={{ marginLeft: "20px", background: "rgba(204, 204, 204)" }}
+      h={"fit-content"}
+      style={{ marginLeft: "20px", background: "#e5e5e5" }}
       shadow="2px"
     >
       <CardBody
