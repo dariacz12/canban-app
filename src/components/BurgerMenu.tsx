@@ -11,7 +11,7 @@ import { Box, Button, Fade, useDisclosure } from "@chakra-ui/react";
 import { HamburgerIcon } from "@chakra-ui/icons";
 import { useNavigate } from "react-router-dom";
 import { LoginContext } from "../contexts/LoginContext";
-import AlertDialogNewBoard from "./AlertDialog";
+import AlertDialogNewBoard from "./AlertDialogNewBoard";
 
 const Menu = styled.div``;
 const MenuList = styled.div``;

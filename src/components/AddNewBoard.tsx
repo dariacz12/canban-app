@@ -1,6 +1,6 @@
 import { Card, CardBody, Image, useDisclosure } from "@chakra-ui/react";
 import React, { useRef } from "react";
-import AlertDialogNewBoard from "../components/AlertDialog";
+import AlertDialogNewBoard from "./AlertDialogNewBoard";
 
 export default function AddNewBoard() {
   const { isOpen, onOpen, onClose } = useDisclosure();

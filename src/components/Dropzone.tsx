@@ -34,7 +34,6 @@ const Dropzone: React.FC = () => {
       return;
     }
     if (info.file.status === "done") {
-      // Get this url from response in real world.
       getBase64(info.file.originFileObj as RcFile, (url) => {
         setLoading(false);
         setImageUrl(url);
@@ -51,9 +50,7 @@ const Dropzone: React.FC = () => {
 
   return (
     <Upload
-      name="avatar"
       listType="picture-card"
-      className="avatar-uploader"
       showUploadList={false}
       action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
       beforeUpload={beforeUpload}

@@ -14,7 +14,7 @@ import { Layout, Menu, theme } from "antd";
 import { Box, Image, useDisclosure, useQuery } from "@chakra-ui/react";
 import { LoginContext } from "../contexts/LoginContext";
 import { useNavigate } from "react-router-dom";
-import AlertDialogNewBoard from "./AlertDialog";
+import AlertDialogNewBoard from "./AlertDialogNewBoard";
 import usePageList from "../customHooks/usePageList";
 
 const { Sider } = Layout;

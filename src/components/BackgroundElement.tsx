@@ -13,7 +13,7 @@ const BackgroundElement = ({
       maxW="2xs"
       style={{ maxWidth: "100vw", margin: "20px", display: "flex", ...style }}
     >
-      <CardBody>
+      <CardBody style={{ padding: "7px" }}>
         <Image
           src={require(`../photos/${imageName}.jpg`)}
           borderRadius="lg"
