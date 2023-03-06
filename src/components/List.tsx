@@ -4,19 +4,8 @@ import {
   ArrowForwardIcon,
   CopyIcon,
   DeleteIcon,
-  EditIcon,
-  ExternalLinkIcon,
-  HamburgerIcon,
-  RepeatIcon,
 } from "@chakra-ui/icons";
 import {
-  AlertDialog,
-  AlertDialogBody,
-  AlertDialogCloseButton,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogOverlay,
   Button,
   Card,
   CardBody,
@@ -26,22 +15,15 @@ import {
   MenuButton,
   MenuItem,
   MenuList,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
   Text,
-  Textarea,
   useDisclosure,
 } from "@chakra-ui/react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import styled from "styled-components";
 import AddCardField from "./AddCardField";
 import CardItem from "./CardItem";
+import CartItemEdit from "./CartItemEdit";
 
 const Main = styled.div`
   display: flex;
@@ -53,12 +35,7 @@ type Inputs = {
 const List = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const {
-    setValue,
     register,
-    setFocus,
-    handleSubmit,
-    watch,
-    reset,
     formState: { errors },
   } = useForm<Inputs>();
   const [activeAddCard, setActiveAddCard] = useState<boolean>(false);
@@ -127,44 +104,7 @@ const List = () => {
           <div onClick={onOpen}>
             <CardItem />
           </div>
-          <Modal isOpen={isOpen} onClose={onClose}>
-            <ModalOverlay />
-            <ModalContent>
-              <ModalHeader>
-                <Input
-                  _placeholder={{
-                    fontWeight: "bold",
-                    fontSize: "sm",
-                    color: "#4c4c4c",
-                  }}
-                  focusBorderColor="#53735E"
-                  placeholder="List Title"
-                  style={{ border: "none" }}
-                  {...register("title", { maxLength: 18 })}
-                />
-                {errors.title?.type === "maxLength" && (
-                  <p style={{ color: "red" }} role="alert">
-                    Max Length is 18 symbols
-                  </p>
-                )}
-              </ModalHeader>
-              <ModalCloseButton />
-              <ModalBody>
-                <Textarea
-                  focusBorderColor="#53735E"
-                  placeholder="Add more detailed description ..."
-                  _placeholder={{ fontSize: "sm" }}
-                  style={{ marginBottom: "10px" }}
-                  {...register("title", { maxLength: 2000 })}
-                />
-                {errors.title?.type === "maxLength" && (
-                  <p style={{ color: "red" }} role="alert">
-                    Max Length is 18 symbols
-                  </p>
-                )}
-              </ModalBody>
-            </ModalContent>
-          </Modal>
+          <CartItemEdit isOpen={isOpen} onClose={onClose} />
           <Footer style={{ display: "flex" }}>
             {!activeAddCard && (
               <Button

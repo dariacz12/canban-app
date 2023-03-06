@@ -4,11 +4,8 @@ import {
   AlertDialogCloseButton,
   AlertDialogContent,
   AlertDialogFooter,
-  AlertDialogHeader,
   AlertDialogOverlay,
   Button,
-  Card,
-  CardBody,
   FormLabel,
   Input,
 } from "@chakra-ui/react";
@@ -23,7 +20,7 @@ type Inputs = {
   title: string;
   imageName: string;
 };
-const AlertDialogNewBoard = ({
+const AlertDialogAddCheckList = ({
   isOpen,
   onClose,
   cancelRef,
@@ -74,34 +71,26 @@ const AlertDialogNewBoard = ({
     >
       <form onSubmit={handleSubmit(onSubmit)}>
         <AlertDialogOverlay />
-        <AlertDialogContent>
-          <AlertDialogHeader>Create Board</AlertDialogHeader>
+        <AlertDialogContent style={{ maxWidth: "400px" }}>
           <AlertDialogCloseButton />
-          <AlertDialogBody>
-            <Card>
-              <CardBody>
-                <FormLabel>Create Board Title:</FormLabel>
-                <Input
-                  placeholder="Board Title"
-                  style={{ marginBottom: "20px" }}
-                  {...register("title", { required: true, maxLength: 18 })}
-                />
-                {errors.title?.type === "required" && (
-                  <span style={{ color: "red" }}>This field is required!</span>
-                )}
-                {errors.title?.type === "maxLength" && (
-                  <p style={{ color: "red" }} role="alert">
-                    Max Length is 18 symbols
-                  </p>
-                )}
-                <AddBackgroundImage
-                  imageName={imageName}
-                  onChange={(imageName) => {
-                    setValue("imageName", imageName);
-                  }}
-                />
-              </CardBody>
-            </Card>
+          <AlertDialogBody style={{ marginTop: "40px" }}>
+            <FormLabel>Create Checklist Title:</FormLabel>
+            <Input
+              placeholder="Your title"
+              style={{
+                marginTop: "10px",
+                marginBottom: "20px",
+              }}
+              {...register("title", { required: true, maxLength: 18 })}
+            />
+            {errors.title?.type === "required" && (
+              <span style={{ color: "red" }}>This field is required!</span>
+            )}
+            {errors.title?.type === "maxLength" && (
+              <p style={{ color: "red" }} role="alert">
+                Max Length is 18 symbols
+              </p>
+            )}
           </AlertDialogBody>
           <AlertDialogFooter>
             <Button ref={cancelRef} onClick={handleClick}>
@@ -123,4 +112,4 @@ const AlertDialogNewBoard = ({
   );
 };
 
-export default AlertDialogNewBoard;
+export default AlertDialogAddCheckList;

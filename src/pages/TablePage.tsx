@@ -6,7 +6,7 @@ import List from "../components/List";
 const TablePage = () => {
   const [activeAddList, setActiveAddList] = useState<boolean>(false);
   return (
-    <div style={{ display: "flex", marginTop: "10px" }}>
+    <div style={{ display: "flex", margin: "10px" }}>
       {!activeAddList && (
         <AddListButton
           setActiveAddList={setActiveAddList}

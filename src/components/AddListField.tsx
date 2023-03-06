@@ -1,6 +1,5 @@
-import { AddIcon } from "@chakra-ui/icons";
 import { Button, Card, CardBody, Input } from "@chakra-ui/react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import styled from "styled-components";
 
@@ -20,12 +19,8 @@ const AddListField = ({
   }, []);
 
   const {
-    setValue,
     register,
     setFocus,
-    handleSubmit,
-    watch,
-    reset,
     formState: { errors },
   } = useForm<Inputs>();
   return (

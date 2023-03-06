@@ -1,6 +1,5 @@
-import { Card, FormLabel, Wrap } from "@chakra-ui/react";
-import { useState } from "react";
-import { Type } from "typescript";
+import { Wrap } from "@chakra-ui/react";
+
 import BackgroundElement from "./BackgroundElement";
 
 const backgroundBoardTable = [
@@ -26,32 +25,38 @@ const AddBackgroundImage = ({
   imageName: string;
 }) => {
   return (
-    <>
-      <FormLabel>Choose Background Image for your Board: </FormLabel>
-      <Wrap
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        {backgroundBoardTable.map(({ imageName: itemImageName }) => (
-          <div
-            onClick={() => {
-              onChange(itemImageName);
+    <Wrap
+      style={{
+        display: "flex",
+        flexWrap: "wrap",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      {backgroundBoardTable.map(({ imageName: itemImageName }) => (
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            justifyContent: "center",
+            alignItems: "center",
+            flex: 1,
+          }}
+          onClick={() => {
+            onChange(itemImageName);
+          }}
+        >
+          <BackgroundElement
+            style={{
+              width: "250px",
+              backgroundColor:
+                itemImageName === imageName ? "#53735E" : undefined,
             }}
-          >
-            <BackgroundElement
-              style={{
-                backgroundColor:
-                  itemImageName === imageName ? "#53735E" : undefined,
-              }}
-              imageName={itemImageName}
-            />
-          </div>
-        ))}
-      </Wrap>
-    </>
+            imageName={itemImageName}
+          />
+        </div>
+      ))}
+    </Wrap>
   );
 };
 
