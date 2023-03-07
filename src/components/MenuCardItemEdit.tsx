@@ -86,7 +86,7 @@ const MenuCardItemEdit = ({
       mode="inline"
       openKeys={openKeys}
       onOpenChange={onOpenChange}
-      style={{ width: 256, maxWidth: "200px" }}
+      style={{ width: 256, maxWidth: "200px", paddingBottom: "20px" }}
       items={items}
     />
   );
