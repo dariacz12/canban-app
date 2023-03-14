@@ -7,12 +7,15 @@ const usePageList = () => {
     Array<{ id: number; imageName: string; boardName: string }> | undefined
   >();
   const { data } = useQuery("tableList", getTableList);
+
+  console.log(2, data);
+
   useEffect(() => {
     setState(
-      data?.map(({ id, name, imageUrl }) => ({
+      data?.map(({ id, attributes }) => ({
         id,
-        boardName: name,
-        imageName: imageUrl,
+        boardName: attributes.title,
+        imageName: attributes.imageUrl,
       }))
     );
   }, [data]);

@@ -10,6 +10,8 @@ import {
   Textarea,
   useDisclosure,
 } from "@chakra-ui/react";
+import useMediaQuery, { MediaQueryKey } from "use-media-antd-query";
+
 import { useForm } from "react-hook-form";
 import styled from "styled-components";
 import AlertDialogAddCheckList from "./AlertDialogAddChecklist";
@@ -24,16 +26,16 @@ const Main = styled.div`
   width: 100%;
 `;
 const RightMain = styled.div`
-  margin-left: 20px;
-  margin-right: 40px;
+  /* margin-left: 40px;
+  margin-right: 40px; */
+
   width: 100%;
 `;
 const LeftMain = styled.div``;
 const TextAriaContainer = styled.div`
-  margin: 0px 20px;
-  padding-right: 20px;
-  width: 100%;
+  /* margin: 0px 0px 0px 20px; */
 `;
+
 type Inputs = {
   title: string;
 };
@@ -48,7 +50,7 @@ const CartItemEdit = ({
     register,
     formState: { errors },
   } = useForm<Inputs>();
-
+  const mediaQuery = useMediaQuery();
   const {
     isOpen: isOpenCheckList,
     onOpen: onOpenCheckList,
@@ -74,8 +76,7 @@ const CartItemEdit = ({
             maxHeight: 500,
             maxWidth: "700px",
             top: "80px",
-            marginLeft: "20px",
-            marginRight: "20px",
+            margin: " 0px 20px",
           }}
         >
           <ModalCloseButton />
@@ -122,7 +123,22 @@ const CartItemEdit = ({
                   onClickCover={() => onOpenCover()}
                 />
               </LeftMain>
-              <RightMain>
+              <RightMain
+                style={{
+                  padding:
+                    mediaQuery === "sm"
+                      ? "0px 60px"
+                      : mediaQuery === "md"
+                      ? "0px 60px"
+                      : mediaQuery === "lg"
+                      ? "0px 60px"
+                      : mediaQuery === "xl"
+                      ? "0px 60px"
+                      : mediaQuery === "xxl"
+                      ? "0px 60px"
+                      : "0px 20px",
+                }}
+              >
                 <TextAriaContainer>
                   <Text
                     color={"#4c4c4c"}
@@ -136,7 +152,7 @@ const CartItemEdit = ({
                     focusBorderColor="#53735E"
                     placeholder="Add more detailed description ..."
                     _placeholder={{ fontSize: "sm" }}
-                    style={{ marginBottom: "10px", maxWidth: "450px" }}
+                    style={{ marginBottom: "10px" }}
                     {...register("title", { maxLength: 2000 })}
                   />
                   {errors.title?.type === "maxLength" && (

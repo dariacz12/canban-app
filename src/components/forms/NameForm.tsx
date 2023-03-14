@@ -16,9 +16,9 @@ const NameForm = () => {
         <Input
           style={{ marginTop: "10px" }}
           placeholder="Name"
-          {...register("name", { required: true })}
+          {...register("username", { required: true })}
         />
-        {errors.name && <span>This field is required</span>}
+        {errors.username && <span>This field is required</span>}
       </Box>
       <Button m={3} type="submit" colorScheme="brand">
         Save changes

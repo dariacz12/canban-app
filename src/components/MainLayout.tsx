@@ -11,13 +11,15 @@ const MainLayout = () => {
   } = theme.useToken();
   const [state] = usePageList();
   const location = useLocation();
-  console.log("location", location);
   let { tableId } = useParams();
+
+  console.log(333, state);
+
   const theImageName = state?.find(
-    ({ id }) => ":" + String(id) === tableId
+    ({ id }) => String(id) === tableId
   )?.imageName;
-  console.log("tableId", tableId);
-  console.log("theImageName", theImageName);
+
+  console.log("newimage", theImageName);
   return (
     <div>
       <Content

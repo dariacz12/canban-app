@@ -15,21 +15,22 @@ import {
 import { SubmitHandler, useForm, useWatch } from "react-hook-form";
 import { RefObject } from "react";
 import AddBackgroundImage from "./AddBackgroundImage";
-import { useMutation } from "react-query";
-import { createTable } from "../api";
+import { QueryClient, useMutation, useQueryClient } from "react-query";
+import { updateTableImage } from "../api";
 
 type Inputs = {
-  title: string;
   imageName: string;
 };
 const ChangeBackgroundImage = ({
   isOpen,
   onClose,
   cancelRef,
+  tableId,
 }: {
   isOpen: boolean;
   onClose: () => void;
   cancelRef: RefObject<HTMLButtonElement>;
+  tableId: string | undefined;
 }) => {
   const {
     setValue,
@@ -38,19 +39,20 @@ const ChangeBackgroundImage = ({
     watch,
     formState: { errors },
   } = useForm<Inputs>();
-
-  const addNewTable = useMutation(createTable, {
+  const queryClient = useQueryClient();
+  const updateBackgroundImageTable = useMutation(updateTableImage, {
     onSuccess: () => {
-      alert("Your board was successfully created!");
       onClose();
     },
     onError: () => {
       alert("Something went wrong!");
     },
+    onSettled: () => {
+      queryClient.invalidateQueries(["tableList"]);
+    },
   });
-  const onSubmit: SubmitHandler<Inputs> = ({ title, imageName }) => {
-    addNewTable.mutate({ title, imageName });
-    console.log("data", { title, imageName });
+  const onSubmit: SubmitHandler<Inputs> = ({ imageName }) => {
+    updateBackgroundImageTable.mutate({ imageName, tableId });
   };
 
   const imageName = watch("imageName");
@@ -93,7 +95,7 @@ const ChangeBackgroundImage = ({
               ml={3}
               type="submit"
             >
-              Create
+              Update
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
