@@ -59,7 +59,7 @@ export default function LoginPage() {
 
   const loginNewUser = useMutation(loginUser, {
     onSuccess: (res) => {
-      setData({ token: res.data.token, refreshToken: res.data.refresh });
+      setData({ token: res.data.jwt, refreshToken: "" });
       alert("Success login!");
       navigate("/dashboard", { replace: true });
     },

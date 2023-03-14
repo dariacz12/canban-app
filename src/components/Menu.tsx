@@ -63,7 +63,6 @@ const MenuElement: React.FC = () => {
   } = theme.useToken();
 
   const onClick: MenuProps["onClick"] = (e) => {
-    console.log("e", e);
     if (e.key === "5item") {
       setData({
         token: "",
@@ -76,7 +75,7 @@ const MenuElement: React.FC = () => {
       onOpen();
     } else if (e.key === "4item") {
       navigate("/settings");
-    } else navigate(`/tablepage/:${e.key}`);
+    } else navigate(`/tablepage/${e.key}`);
   };
   return (
     <>

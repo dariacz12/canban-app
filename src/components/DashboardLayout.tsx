@@ -30,7 +30,6 @@ const DashboardLayout = () => {
   } = theme.useToken();
 
   const { data, isLoading, isError } = useQuery("userData", getUserData);
-  console.log("userData", data?.first_name);
   const location = useLocation();
   return (
     <ConfigProvider
@@ -107,7 +106,7 @@ const DashboardLayout = () => {
                           height={"20px"}
                           color={"#f5f5f5"}
                         >
-                          {data?.first_name}
+                          {data?.username}
                         </Text>
                         <Text fontSize="sm" height={"40px"} color={"#f5f5f5"}>
                           Dashboard

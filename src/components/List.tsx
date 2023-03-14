@@ -32,7 +32,7 @@ const Footer = styled.div``;
 type Inputs = {
   title: string;
 };
-const List = () => {
+const List = ({ listName }: { listName: string }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const {
     register,
@@ -69,7 +69,7 @@ const List = () => {
                 color: "#4c4c4c",
               }}
               focusBorderColor="#53735E"
-              placeholder="List Title"
+              placeholder={listName}
               style={{ border: "none" }}
               {...register("title", { required: true, maxLength: 18 })}
             />

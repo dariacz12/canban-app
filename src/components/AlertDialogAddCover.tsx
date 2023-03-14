@@ -47,11 +47,9 @@ const AlertDialogAddCover = ({
   });
   const onSubmit: SubmitHandler<Inputs> = ({ title, imageName }) => {
     addNewTable.mutate({ title, imageName });
-    console.log("data", { title, imageName });
   };
 
   const imageName = watch("imageName");
-  console.log(1, imageName);
   const handleClick = () => {
     reset();
     onClose();

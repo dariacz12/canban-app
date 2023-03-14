@@ -7,7 +7,6 @@ const BackgroundElement = ({
   imageName: string;
   style: React.CSSProperties | undefined;
 }) => {
-  console.log("image", imageName);
   return (
     <Card
       maxW="2xs"

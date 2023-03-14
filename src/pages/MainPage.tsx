@@ -66,7 +66,6 @@ const MainPage = () => {
             })
           );
     }
-    console.log("posortowane", testBoardTable);
   };
 
   const [searchInput, setSearchInput] = useState("");
@@ -109,7 +108,6 @@ const MainPage = () => {
               placeholder="Sort by"
               maxWidth={200}
               onChange={(value) => {
-                console.log("value", value.target.value);
                 sortTable(value.target.value);
               }}
             >

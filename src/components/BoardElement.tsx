@@ -23,7 +23,7 @@ const BoardElement = ({
   const [activeStar, setActiveStar] = useState<Boolean>(false);
   return (
     <Card cursor={"pointer"} maxW="2xs" style={{ margin: "20px" }}>
-      <CardBody onClick={() => navigate(`/tablepage/:${id}`)} padding="15px">
+      <CardBody onClick={() => navigate(`/tablepage/${id}`)} padding="15px">
         <Image src={require(`../photos/${imageName}.jpg`)} borderRadius="md" />
       </CardBody>
       <Divider style={{ color: "#53735E" }} />
@@ -33,7 +33,7 @@ const BoardElement = ({
         justifyContent={"space-between"}
       >
         <Heading
-          onClick={() => navigate(`/tablepage/:${id}`)}
+          onClick={() => navigate(`/tablepage/${id}`)}
           fontWeight="medium"
           size="sm"
         >

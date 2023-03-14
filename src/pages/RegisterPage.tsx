@@ -42,7 +42,7 @@ const Field = styled.label`
 `;
 
 export type FormData = {
-  name: string;
+  username: string;
   email: string;
   password: string;
   image: string;
@@ -67,7 +67,7 @@ export default function RegisterPage() {
 
   const loginNewUser = useMutation(loginUser, {
     onSuccess: (res) => {
-      setData({ token: res.data.token, refreshToken: res.data.refresh });
+      setData({ token: res.data.jwt, refreshToken: "" });
       alert("Success login!");
       navigate("/dashboard", { replace: true });
     },
@@ -129,9 +129,9 @@ export default function RegisterPage() {
                     <FormLabel>Name</FormLabel>
                     <Input
                       placeholder="Name"
-                      {...register("name", { required: true })}
+                      {...register("username", { required: true })}
                     />
-                    {errors.name && <span>This field is required</span>}
+                    {errors.username && <span>This field is required</span>}
                   </Field>
                   <Field>
                     <FormLabel>Email</FormLabel>
