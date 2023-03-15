@@ -59,6 +59,7 @@ type ListsListData = {
     title: string;
   };
 }[];
+
 export const createAccount = async ({
   email,
   username,
@@ -207,11 +208,41 @@ export const createList = async ({
       },
     }
   );
+export const updateListTitle = async ({
+  title,
+  listId,
+}: {
+  title: string;
+  listId: string;
+}) =>
+  axios.put(
+    `${BASE_URL}/api/lists/${listId}`,
+    {
+      data: {
+        title,
+      },
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${
+          JSON.parse(localStorage.getItem("loginData") || "").token
+        }`,
+      },
+    }
+  );
+export const deleteList = async (listId: string) =>
+  axios.delete(`${BASE_URL}/api/lists/${listId}`, {
+    headers: {
+      Authorization: `Bearer ${
+        JSON.parse(localStorage.getItem("loginData") || "").token
+      }`,
+    },
+  });
 export const getTableListsList = async (
   tableId: string
 ): Promise<BoardListsListData> => {
   return (
-    await axios.get(`${BASE_URL}/api/tables/${tableId}`, {
+    await axios.get(`${BASE_URL}/api/tables/${tableId}?populate=*`, {
       headers: {
         Authorization: `Bearer ${
           JSON.parse(localStorage.getItem("loginData") || "").token
