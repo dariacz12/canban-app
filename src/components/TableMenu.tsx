@@ -109,29 +109,10 @@ const TableMenu = () => {
             </CardBody>
           </Card>
 
-          <Card
-            style={{
-              background: "transparent",
-              margin: "0px 20px",
-            }}
-            shadow="2px"
-          >
-            <CardBody
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                padding: 15,
-                cursor: "pointer",
-              }}
-              // onClick={() => onOpen()}
-            >
-              <TableBurgerMenu
-                onClickChangeImage={onOpen}
-                tableId={String(tableId)}
-              />
-            </CardBody>
-          </Card>
+          <TableBurgerMenu
+            onClickChangeImage={onOpen}
+            tableId={String(tableId)}
+          />
         </RightMenu>
       </div>
       <ChangeBackgroundImage

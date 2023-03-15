@@ -18,9 +18,13 @@ import {
   Text,
   useDisclosure,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { KeyboardEventHandler, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useMutation, useQueryClient } from "react-query";
+import { useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
+import { deleteList, updateListTitle } from "../api";
+import useClickOutside from "../customHooks/useClickOutside";
 import AddCardField from "./AddCardField";
 import CardItem from "./CardItem";
 import CartItemEdit from "./CartItemEdit";
@@ -28,20 +32,65 @@ import CartItemEdit from "./CartItemEdit";
 const Main = styled.div`
   display: flex;
 `;
+const Wrap = styled.div``;
 const Footer = styled.div``;
 type Inputs = {
   title: string;
 };
-const List = ({ listName }: { listName: string }) => {
+const List = ({ id, listName }: { id: string; listName: string }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  let { tableId } = useParams();
   const {
     register,
+    resetField,
+    handleSubmit,
     formState: { errors },
   } = useForm<Inputs>();
   const [activeAddCard, setActiveAddCard] = useState<boolean>(false);
   const activeCard = () => {
     setActiveAddCard(!activeAddCard);
   };
+  const listNameInputWraperRef = useRef<HTMLDivElement>(null);
+
+  const onTitleSaved = () => {
+    resetField("title");
+  };
+  const onSubmit = () => onTitleSaved();
+  useClickOutside(listNameInputWraperRef, onTitleSaved);
+
+  const handleKeyPress = (event: any) => {
+    if (event.key === "Enter") {
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
+    }
+  };
+  const navigate = useNavigate();
+  const queryClientDelete = useQueryClient();
+  const deleteListsListMutation = useMutation(deleteList, {
+    onSuccess: () => {
+      navigate(`/tablepage/${tableId}`);
+    },
+    onError: () => {
+      alert("Something went wrong");
+    },
+    onSettled: () => {
+      queryClientDelete.invalidateQueries([`tableListsList${tableId}`]);
+    },
+  });
+
+  const queryClientUpdate = useQueryClient();
+  const updateListsListMutation = useMutation(updateListTitle, {
+    onSuccess: () => {
+      navigate(`/tablepage/${tableId}`);
+    },
+    onError: () => {
+      alert("Something went wrong");
+    },
+    onSettled: () => {
+      queryClientUpdate.invalidateQueries([`tableListsList${tableId}`]);
+    },
+  });
   return (
     <>
       <Card
@@ -62,25 +111,33 @@ const List = ({ listName }: { listName: string }) => {
           }}
         >
           <Main>
-            <Input
-              _placeholder={{
-                fontWeight: "bold",
-                fontSize: "sm",
-                color: "#4c4c4c",
-              }}
-              focusBorderColor="#53735E"
-              placeholder={listName}
-              style={{ border: "none" }}
-              {...register("title", { required: true, maxLength: 18 })}
-            />
-            {errors.title?.type === "required" && (
-              <span style={{ color: "red" }}>This field is required!</span>
-            )}
-            {errors.title?.type === "maxLength" && (
-              <p style={{ color: "red" }} role="alert">
-                Max Length is 18 symbols
-              </p>
-            )}
+            <Wrap ref={listNameInputWraperRef}>
+              <form onSubmit={handleSubmit(onSubmit)}>
+                <Input
+                  _placeholder={{
+                    fontWeight: "bold",
+                    fontSize: "sm",
+                    color: "#4c4c4c",
+                  }}
+                  focusBorderColor="#53735E"
+                  placeholder={listName}
+                  style={{ border: "none" }}
+                  {...register("title", { maxLength: 18 })}
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                    updateListsListMutation.mutate({
+                      title: event.target.value,
+                      listId: String(id),
+                    });
+                  }}
+                  onKeyPress={handleKeyPress}
+                />
+                {errors.title?.type === "maxLength" && (
+                  <p style={{ color: "red" }} role="alert">
+                    Max Length is 18 symbols
+                  </p>
+                )}
+              </form>
+            </Wrap>
             <Menu>
               <MenuButton
                 as={IconButton}
@@ -97,7 +154,12 @@ const List = ({ listName }: { listName: string }) => {
                   Move list to another board
                 </MenuItem>
                 <MenuItem icon={<CopyIcon />}>Copy list</MenuItem>
-                <MenuItem icon={<DeleteIcon />}>Delete list</MenuItem>
+                <MenuItem
+                  onClick={() => deleteListsListMutation.mutate(id)}
+                  icon={<DeleteIcon />}
+                >
+                  Delete list
+                </MenuItem>
               </MenuList>
             </Menu>
           </Main>

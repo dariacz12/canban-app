@@ -1,7 +1,7 @@
-import { Button, Card, CardBody, Input } from "@chakra-ui/react";
+import { Button, Card, CardBody, Input, useQuery } from "@chakra-ui/react";
 import { useEffect } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useMutation } from "react-query";
+import { useMutation, useQueryClient } from "react-query";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import { createList } from "../api";
@@ -20,25 +20,31 @@ const AddListField = ({
   useEffect(() => {
     setFocus("title");
   }, []);
+  const queryQlient = useQueryClient();
 
   const {
     handleSubmit,
     register,
     setFocus,
+    resetField,
     formState: { errors },
   } = useForm<Inputs>();
 
-  const addNewTable = useMutation(createList, {
+  const addNewList = useMutation(createList, {
     onSuccess: () => {
       alert("Your list was successfully created!");
     },
     onError: () => {
       alert("Something went wrong!");
     },
+    onSettled: () => {
+      queryQlient.invalidateQueries([`tableListsList${tableId}`]);
+    },
   });
   let { tableId } = useParams();
   const onSubmit: SubmitHandler<Inputs> = ({ title }) => {
-    addNewTable.mutate({ title, table: String(tableId) });
+    addNewList.mutate({ title, table: String(tableId) });
+    resetField("title");
     console.log("datalist", { title });
   };
   return (
