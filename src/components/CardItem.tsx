@@ -1,6 +1,6 @@
 import { Box, Card, CardBody, Image, Text } from "@chakra-ui/react";
 import { useState } from "react";
-const CardItem = () => {
+const CardItem = ({ title }: { title: string }) => {
   const [cover, setCover] = useState<Boolean>(false);
   return (
     <Card style={{ margin: "7px 0px" }}>
@@ -21,7 +21,7 @@ const CardItem = () => {
             />
           </Box>
         )}
-        <Text padding={"20px"}>Card title</Text>
+        <Text padding={"20px"}>{title}</Text>
       </CardBody>
     </Card>
   );

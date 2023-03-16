@@ -53,6 +53,19 @@ type BoardListsListData = {
     };
   };
 };
+type ListsListCardsTitles = {
+  id: number;
+  attributes: {
+    cards: {
+      data: {
+        id: number;
+        attributes: {
+          title: string;
+        };
+      }[];
+    };
+  };
+};
 type ListsListData = {
   id: number;
   attributes: {
@@ -60,6 +73,10 @@ type ListsListData = {
   };
 }[];
 
+type CardtTitleData = {
+  title: string;
+  listId: String;
+};
 export const createAccount = async ({
   email,
   username,
@@ -254,6 +271,40 @@ export const getTableListsList = async (
 export const getListsList = async (): Promise<ListsListData> => {
   return (
     await axios.get(`${BASE_URL}/api/lists`, {
+      headers: {
+        Authorization: `Bearer ${
+          JSON.parse(localStorage.getItem("loginData") || "").token
+        }`,
+      },
+    })
+  ).data.data;
+};
+export const createCard = async ({
+  title,
+  listId,
+}: CardtTitleData): Promise<CardtTitleData> =>
+  axios.post(
+    `${BASE_URL}/api/cards`,
+    {
+      data: {
+        title,
+        lists: [listId],
+      },
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${
+          JSON.parse(localStorage.getItem("loginData") || "").token
+        }`,
+      },
+    }
+  );
+
+export const getListsListCardsTitles = async (
+  listId: string
+): Promise<ListsListCardsTitles> => {
+  return (
+    await axios.get(`${BASE_URL}/api/lists/${listId}?populate=*`, {
       headers: {
         Authorization: `Bearer ${
           JSON.parse(localStorage.getItem("loginData") || "").token
