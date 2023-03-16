@@ -20,10 +20,10 @@ import {
 } from "@chakra-ui/react";
 import { KeyboardEventHandler, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
-import { deleteList, updateListTitle } from "../api";
+import { deleteList, getListsListCardsTitles, updateListTitle } from "../api";
 import useClickOutside from "../customHooks/useClickOutside";
 import AddCardField from "./AddCardField";
 import CardItem from "./CardItem";
@@ -37,7 +37,11 @@ const Footer = styled.div``;
 type Inputs = {
   title: string;
 };
-const List = ({ id, listName }: { id: string; listName: string }) => {
+const List = ({ listId, listName }: { listId: string; listName: string }) => {
+  const { data } = useQuery(`cardTitle${listId}`, () =>
+    getListsListCardsTitles(String(listId))
+  );
+  console.log("moja lista z cartami ", data);
   const { isOpen, onOpen, onClose } = useDisclosure();
   let { tableId } = useParams();
   const {
@@ -94,9 +98,9 @@ const List = ({ id, listName }: { id: string; listName: string }) => {
   return (
     <>
       <Card
-        maxW="231px"
+        minW="231px"
         h={"fit-content"}
-        style={{ marginLeft: "20px", background: "#e5e5e5" }}
+        style={{ margin: "0px 20px", background: "#e5e5e5" }}
         shadow="2px"
       >
         <CardBody
@@ -126,7 +130,7 @@ const List = ({ id, listName }: { id: string; listName: string }) => {
                   onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                     updateListsListMutation.mutate({
                       title: event.target.value,
-                      listId: String(id),
+                      listId: String(listId),
                     });
                   }}
                   onKeyPress={handleKeyPress}
@@ -155,7 +159,7 @@ const List = ({ id, listName }: { id: string; listName: string }) => {
                 </MenuItem>
                 <MenuItem icon={<CopyIcon />}>Copy list</MenuItem>
                 <MenuItem
-                  onClick={() => deleteListsListMutation.mutate(id)}
+                  onClick={() => deleteListsListMutation.mutate(listId)}
                   icon={<DeleteIcon />}
                 >
                   Delete list
@@ -164,7 +168,10 @@ const List = ({ id, listName }: { id: string; listName: string }) => {
             </Menu>
           </Main>
           <div onClick={onOpen}>
-            <CardItem />
+            {data &&
+              data?.attributes?.cards?.data?.map(({ attributes }) => (
+                <CardItem title={attributes.title} />
+              ))}
           </div>
           <CartItemEdit isOpen={isOpen} onClose={onClose} />
           <Footer style={{ display: "flex" }}>
@@ -193,7 +200,9 @@ const List = ({ id, listName }: { id: string; listName: string }) => {
               </Button>
             )}
           </Footer>
-          {activeAddCard && <AddCardField onClick={activeCard} />}
+          {activeAddCard && (
+            <AddCardField listId={String(listId)} onClick={activeCard} />
+          )}
         </CardBody>
       </Card>
     </>
