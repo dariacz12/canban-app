@@ -18,7 +18,7 @@ import {
   Text,
   useDisclosure,
 } from "@chakra-ui/react";
-import { KeyboardEventHandler, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useNavigate, useParams } from "react-router-dom";
@@ -27,10 +27,16 @@ import { deleteList, getListsListCardsTitles, updateListTitle } from "../api";
 import useClickOutside from "../customHooks/useClickOutside";
 import AddCardField from "./AddCardField";
 import CardItem from "./CardItem";
-import CartItemEdit from "./CartItemEdit";
 
 const Main = styled.div`
   display: flex;
+`;
+const Cards = styled.div`
+  display: flex;
+  flex-direction: column;
+  row-gap: 4;
+  overflow: scroll;
+  flex: 1;
 `;
 const Wrap = styled.div``;
 const Footer = styled.div``;
@@ -42,12 +48,12 @@ const List = ({ listId, listName }: { listId: string; listName: string }) => {
     getListsListCardsTitles(String(listId))
   );
   console.log("moja lista z cartami ", data);
-  const { isOpen, onOpen, onClose } = useDisclosure();
   let { tableId } = useParams();
   const {
     register,
     resetField,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<Inputs>();
   const [activeAddCard, setActiveAddCard] = useState<boolean>(false);
@@ -100,18 +106,24 @@ const List = ({ listId, listName }: { listId: string; listName: string }) => {
       <Card
         minW="231px"
         h={"fit-content"}
-        style={{ margin: "0px 20px", background: "#e5e5e5" }}
+        style={{
+          margin: "0px 20px",
+          background: "#e5e5e5",
+          height: "fit-content",
+        }}
         shadow="2px"
       >
         <CardBody
           style={{
-            alignItems: "center",
             justifyContent: "left",
             paddingTop: 10,
             paddingBottom: 10,
             paddingRight: 15,
             paddingLeft: 15,
             cursor: "pointer",
+            display: "flex",
+            flexDirection: "column",
+            maxHeight: "90vh",
           }}
         >
           <Main>
@@ -123,6 +135,7 @@ const List = ({ listId, listName }: { listId: string; listName: string }) => {
                     fontSize: "sm",
                     color: "#4c4c4c",
                   }}
+                  onClick={() => setValue("title", listName)}
                   focusBorderColor="#53735E"
                   placeholder={listName}
                   style={{ border: "none" }}
@@ -167,13 +180,17 @@ const List = ({ listId, listName }: { listId: string; listName: string }) => {
               </MenuList>
             </Menu>
           </Main>
-          <div onClick={onOpen}>
+          <Cards style={{ overflow: "scroll" }}>
             {data &&
-              data?.attributes?.cards?.data?.map(({ attributes }) => (
-                <CardItem title={attributes.title} />
+              data?.attributes?.cards?.data?.map(({ attributes, id }) => (
+                <CardItem
+                  title={attributes.title}
+                  cardId={String(id)}
+                  listId={listId}
+                />
               ))}
-          </div>
-          <CartItemEdit isOpen={isOpen} onClose={onClose} />
+          </Cards>
+
           <Footer style={{ display: "flex" }}>
             {!activeAddCard && (
               <Button

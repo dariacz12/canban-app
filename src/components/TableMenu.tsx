@@ -12,6 +12,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
+import { useForm } from "react-hook-form";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import { updateTableTitle } from "../api";
@@ -29,8 +30,9 @@ const LeftMenu = styled.div``;
 const RightMenu = styled.div``;
 const TableMenu = () => {
   const [activeStar, setActiveStar] = useState<Boolean>(false);
-
+  const { setValue, register } = useForm();
   const [state] = usePageList();
+  console.log("myState", state);
   let { tableId } = useParams<{ tableId?: string }>();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const cancelRef = React.useRef<HTMLButtonElement>(null);
@@ -60,23 +62,26 @@ const TableMenu = () => {
                 padding: 5,
               }}
             >
-              <Input
-                focusBorderColor="#53735E"
-                border={"none"}
-                color="whitesmoke"
-                fontWeight="bold"
-                _placeholder={{
-                  color: "whitesmoke",
-                  position: "relative",
-                  fontWeight: "bold",
-                }}
-                placeholder={
-                  state?.find(({ id }) => String(id) === tableId)?.boardName
-                }
-                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                  updateTableTitle({ title: event.target.value, tableId });
-                }}
-              ></Input>
+              <form>
+                <Input
+                  focusBorderColor="#53735E"
+                  border={"none"}
+                  color="whitesmoke"
+                  fontWeight="bold"
+                  {...register("title", { maxLength: 18 })}
+                  _placeholder={{
+                    color: "whitesmoke",
+                    position: "relative",
+                    fontWeight: "bold",
+                  }}
+                  placeholder={
+                    state?.find(({ id }) => String(id) === tableId)?.boardName
+                  }
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                    updateTableTitle({ title: event.target.value, tableId });
+                  }}
+                />
+              </form>
             </CardBody>
           </Card>
         </LeftMenu>

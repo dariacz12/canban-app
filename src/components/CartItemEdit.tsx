@@ -16,38 +16,47 @@ import { useForm } from "react-hook-form";
 import styled from "styled-components";
 import AlertDialogAddCheckList from "./AlertDialogAddChecklist";
 import MenuCardItemEdit from "./MenuCardItemEdit";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import AlertDialogAddAttachment from "./AlertDialogAddAttachment";
 import AlertDialogAddCover from "./AlertDialogAddCover";
 import Ckecklist from "./Ckecklist";
-
+import { useMutation, useQuery, useQueryClient } from "react-query";
+import { getCardData, updateCardDescription, updateCardTitle } from "../api";
+import useClickOutside from "../customHooks/useClickOutside";
+const Wrap = styled.div``;
 const Main = styled.div`
   display: flex;
   width: 100%;
 `;
 const RightMain = styled.div`
-  /* margin-left: 40px;
-  margin-right: 40px; */
-
   width: 100%;
 `;
 const LeftMain = styled.div``;
-const TextAriaContainer = styled.div`
-  /* margin: 0px 0px 0px 20px; */
-`;
+const TextAriaContainer = styled.div``;
 
 type Inputs = {
   title: string;
+  description: string;
 };
 const CartItemEdit = ({
   isOpen,
   onClose,
+  title,
+  cardId,
+  listId,
 }: {
   isOpen: boolean;
   onClose: () => void;
+  title: string;
+
+  cardId: string;
+  listId: string;
 }) => {
   const {
     register,
+    handleSubmit,
+    resetField,
+    setValue,
     formState: { errors },
   } = useForm<Inputs>();
   const mediaQuery = useMediaQuery();
@@ -68,6 +77,56 @@ const CartItemEdit = ({
   } = useDisclosure();
   const cancelRef = React.useRef<HTMLButtonElement>(null);
   const [cover, setCover] = useState<Boolean>(false);
+
+  const handleKeyPress = (event: any) => {
+    if (event.key === "Enter") {
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
+    }
+  };
+  const cardTitleInputWraperRef = useRef<HTMLDivElement>(null);
+
+  const onTitleSaved = () => {
+    resetField("title");
+  };
+  const onSubmitTitle = () => onTitleSaved();
+  useClickOutside(cardTitleInputWraperRef, onTitleSaved);
+
+  const queryClientTitleUpdate = useQueryClient();
+  const updateCardTitleMutation = useMutation(updateCardTitle, {
+    onSuccess: () => {},
+    onError: () => {
+      alert("Something went wrong");
+    },
+    onSettled: () => {
+      queryClientTitleUpdate.invalidateQueries([`cardTitle${listId}`]);
+    },
+  });
+  const { data } = useQuery(`cardData${cardId}`, () =>
+    getCardData(String(cardId))
+  );
+  console.log("description", data);
+  const description = data?.attributes?.description;
+  console.log("my description", description);
+
+  const cardDescriptionWraperRef = useRef<HTMLDivElement>(null);
+  const onDescriptionSaved = () => {
+    resetField("description");
+  };
+  const onSubmitDescription = () => onDescriptionSaved();
+  useClickOutside(cardTitleInputWraperRef, onDescriptionSaved);
+
+  const queryClientDescriptionUpdate = useQueryClient();
+  const updateCardDescriptionMutation = useMutation(updateCardDescription, {
+    onSuccess: () => {},
+    onError: () => {
+      alert("Something went wrong");
+    },
+    onSettled: () => {
+      queryClientDescriptionUpdate.invalidateQueries([`cardData${cardId}`]);
+    },
+  });
   return (
     <>
       <Modal isOpen={isOpen && !isOpenCover} onClose={onClose}>
@@ -98,23 +157,35 @@ const CartItemEdit = ({
                 />
               </Box>
             )}
-            <Input
-              maxW={"380px"}
-              _placeholder={{
-                fontWeight: "bold",
-                fontSize: "sm",
-                color: "#4c4c4c",
-              }}
-              focusBorderColor="#53735E"
-              placeholder="List Title"
-              style={{ border: "none", margin: "10px 30px" }}
-              {...register("title", { maxLength: 18 })}
-            />
-            {errors.title?.type === "maxLength" && (
-              <p style={{ color: "red" }} role="alert">
-                Max Length is 18 symbols
-              </p>
-            )}
+            <Wrap ref={cardTitleInputWraperRef}>
+              <form onSubmit={handleSubmit(onSubmitTitle)}>
+                <Input
+                  maxW={"380px"}
+                  _placeholder={{
+                    fontWeight: "bold",
+                    fontSize: "sm",
+                    color: "#4c4c4c",
+                  }}
+                  onClick={() => setValue("title", title)}
+                  focusBorderColor="#53735E"
+                  placeholder={title}
+                  {...register("title", { maxLength: 18 })}
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                    updateCardTitleMutation.mutate({
+                      title: event.target.value,
+                      cardId: String(cardId),
+                    });
+                  }}
+                  style={{ border: "none", margin: "10px 30px" }}
+                  onKeyPress={handleKeyPress}
+                />
+                {errors.title?.type === "maxLength" && (
+                  <p style={{ color: "red" }} role="alert">
+                    Max Length is 18 symbols
+                  </p>
+                )}
+              </form>
+            </Wrap>
             <Main>
               <LeftMain>
                 <MenuCardItemEdit
@@ -148,18 +219,40 @@ const CartItemEdit = ({
                   >
                     Description
                   </Text>
-                  <Textarea
-                    focusBorderColor="#53735E"
-                    placeholder="Add more detailed description ..."
-                    _placeholder={{ fontSize: "sm" }}
-                    style={{ marginBottom: "10px" }}
-                    {...register("title", { maxLength: 2000 })}
-                  />
-                  {errors.title?.type === "maxLength" && (
-                    <p style={{ color: "red" }} role="alert">
-                      Max Length is 2000 symbols
-                    </p>
-                  )}
+                  <Wrap ref={cardDescriptionWraperRef}>
+                    <form onSubmit={handleSubmit(onSubmitDescription)}>
+                      <Textarea
+                        focusBorderColor="#53735E"
+                        placeholder={
+                          description
+                            ? description
+                            : "Add more detailed description"
+                        }
+                        _placeholder={{ fontSize: "sm" }}
+                        style={{ marginBottom: "10px" }}
+                        {...register("description", { maxLength: 2000 })}
+                        onClick={() =>
+                          setValue(
+                            "description",
+                            String(description ? description : "")
+                          )
+                        }
+                        onChange={(
+                          event: React.ChangeEvent<HTMLTextAreaElement>
+                        ) => {
+                          updateCardDescriptionMutation.mutate({
+                            description: event.target.value,
+                            cardId: String(cardId),
+                          });
+                        }}
+                      />
+                      {errors.description?.type === "maxLength" && (
+                        <p style={{ color: "red" }} role="alert">
+                          Max Length is 2000 symbols
+                        </p>
+                      )}
+                    </form>
+                  </Wrap>
                 </TextAriaContainer>
                 <Ckecklist />
               </RightMain>
