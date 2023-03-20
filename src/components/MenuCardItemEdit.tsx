@@ -11,7 +11,9 @@ import {
   EditIcon,
   PlusSquareIcon,
 } from "@chakra-ui/icons";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { useMutation, useQueryClient } from "react-query";
+import { deleteCard } from "../api";
 
 type MenuItem = Required<MenuProps>["items"][number];
 
@@ -50,11 +52,35 @@ const MenuCardItemEdit = ({
   onClickCheckList,
   onClickAttachment,
   onClickCover,
+  cardId,
+  listId,
+  onClose,
 }: {
   onClickCheckList: () => void;
   onClickAttachment: () => void;
   onClickCover: () => void;
+  cardId: string;
+  listId: string;
+  onClose: () => void;
 }) => {
+  const navigate = useNavigate();
+  let { tableId } = useParams();
+  const queryClientCardDelete = useQueryClient();
+  const delateCardMutation = useMutation(deleteCard, {
+    onSuccess: () => {
+      onClose();
+      navigate(`/tablepage/${tableId}`);
+    },
+    onError: () => {
+      alert("Something went wrong");
+    },
+    onSettled: () => {
+      queryClientCardDelete.invalidateQueries([`cardTitle${listId}`]);
+    },
+  });
+  const deleteCardItem = () => {
+    delateCardMutation.mutate(cardId);
+  };
   const onClick: MenuProps["onClick"] = (e) => {
     if (e.key === "1") {
       onClickCheckList();
@@ -66,9 +92,11 @@ const MenuCardItemEdit = ({
       navigate("/");
     } else if (e.key === "5") {
       navigate("/");
+    } else if (e.key === "7") {
+      deleteCardItem();
     } else navigate(`/}`);
   };
-  const navigate = useNavigate();
+
   const [openKeys, setOpenKeys] = useState(["sub1"]);
 
   const onOpenChange: MenuProps["onOpenChange"] = (keys) => {

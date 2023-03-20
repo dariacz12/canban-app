@@ -381,3 +381,11 @@ export const updateCardDescription = async ({
       },
     }
   );
+export const deleteCard = async (cardId: string) =>
+  axios.delete(`${BASE_URL}/api/cards/${cardId}`, {
+    headers: {
+      Authorization: `Bearer ${
+        JSON.parse(localStorage.getItem("loginData") || "").token
+      }`,
+    },
+  });

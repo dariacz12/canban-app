@@ -106,9 +106,7 @@ const CartItemEdit = ({
   const { data } = useQuery(`cardData${cardId}`, () =>
     getCardData(String(cardId))
   );
-  console.log("description", data);
   const description = data?.attributes?.description;
-  console.log("my description", description);
 
   const cardDescriptionWraperRef = useRef<HTMLDivElement>(null);
   const onDescriptionSaved = () => {
@@ -192,6 +190,9 @@ const CartItemEdit = ({
                   onClickCheckList={() => onOpenCheckList()}
                   onClickAttachment={() => onOpenAttachment()}
                   onClickCover={() => onOpenCover()}
+                  cardId={cardId}
+                  listId={listId}
+                  onClose={onClose}
                 />
               </LeftMain>
               <RightMain
