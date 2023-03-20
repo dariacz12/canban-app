@@ -66,6 +66,14 @@ type ListsListCardsTitles = {
     };
   };
 };
+type CardDataDescription = {
+  id: number;
+  attributes: {
+    title: string;
+    description: string;
+  };
+};
+
 type ListsListData = {
   id: number;
   attributes: {
@@ -73,7 +81,7 @@ type ListsListData = {
   };
 }[];
 
-type CardtTitleData = {
+type CardtData = {
   title: string;
   listId: String;
 };
@@ -282,7 +290,10 @@ export const getListsList = async (): Promise<ListsListData> => {
 export const createCard = async ({
   title,
   listId,
-}: CardtTitleData): Promise<CardtTitleData> =>
+}: {
+  title: string;
+  listId: string;
+}): Promise<CardtData> =>
   axios.post(
     `${BASE_URL}/api/cards`,
     {
@@ -313,3 +324,68 @@ export const getListsListCardsTitles = async (
     })
   ).data.data;
 };
+export const getCardData = async (
+  cardId: string
+): Promise<CardDataDescription> => {
+  return (
+    await axios.get(`${BASE_URL}/api/cards/${cardId}?populate=*`, {
+      headers: {
+        Authorization: `Bearer ${
+          JSON.parse(localStorage.getItem("loginData") || "").token
+        }`,
+      },
+    })
+  ).data.data;
+};
+export const updateCardTitle = async ({
+  title,
+  cardId,
+}: {
+  title: string;
+  cardId: string;
+}) =>
+  axios.put(
+    `${BASE_URL}/api/cards/${cardId}`,
+    {
+      data: {
+        title,
+      },
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${
+          JSON.parse(localStorage.getItem("loginData") || "").token
+        }`,
+      },
+    }
+  );
+export const updateCardDescription = async ({
+  description,
+  cardId,
+}: {
+  description: string;
+  cardId: string;
+}) =>
+  axios.put(
+    `${BASE_URL}/api/cards/${cardId}`,
+    {
+      data: {
+        description,
+      },
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${
+          JSON.parse(localStorage.getItem("loginData") || "").token
+        }`,
+      },
+    }
+  );
+export const deleteCard = async (cardId: string) =>
+  axios.delete(`${BASE_URL}/api/cards/${cardId}`, {
+    headers: {
+      Authorization: `Bearer ${
+        JSON.parse(localStorage.getItem("loginData") || "").token
+      }`,
+    },
+  });

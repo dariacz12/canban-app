@@ -15,7 +15,6 @@ const Wrap = styled.div`
   row-gap: 4;
   overflow: auto;
   flex: 1;
-  /* min-height: 100vh; */
 `;
 const TablePage = () => {
   const [activeAddList, setActiveAddList] = useState<boolean>(false);
@@ -23,10 +22,7 @@ const TablePage = () => {
   const { data } = useQuery(`tableListsList${tableId}`, () =>
     getTableListsList(String(tableId))
   );
-
-  console.log(" list2", data);
   return (
-    // className="mx-auto  max-w-sm"
     <Wrap>
       <div style={{ display: "flex" }}>
         {!activeAddList && (
@@ -42,9 +38,6 @@ const TablePage = () => {
           />
         )}
       </div>
-
-      {/*  */}
-
       {data &&
         data?.attributes?.lists?.data.map(({ attributes, id }) => (
           <List listId={String(id)} listName={attributes.title} />

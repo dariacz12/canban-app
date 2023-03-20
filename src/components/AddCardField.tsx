@@ -14,7 +14,7 @@ const AddCardField = ({
   listId,
   onClick,
 }: {
-  listId: String;
+  listId: string;
   onClick: () => void;
 }) => {
   useEffect(() => {
@@ -29,6 +29,7 @@ const AddCardField = ({
   } = useForm<Inputs>();
   let { tableId } = useParams();
   const navigate = useNavigate();
+
   const queryQlient = useQueryClient();
   const addNewCard = useMutation(createCard, {
     onSuccess: () => {
@@ -43,7 +44,6 @@ const AddCardField = ({
     },
   });
   const onSubmit = ({ title }: { title: string }) => {
-    console.log("listId", listId);
     addNewCard.mutate({ title, listId });
   };
 
