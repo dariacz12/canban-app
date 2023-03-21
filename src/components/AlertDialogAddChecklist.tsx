@@ -13,21 +13,27 @@ import { SubmitHandler, useForm, useWatch } from "react-hook-form";
 import { RefObject } from "react";
 import AddBackgroundImage from "./AddBackgroundImage";
 
-import { useMutation } from "react-query";
-import { createTable } from "../api";
+import { useMutation, useQuery, useQueryClient } from "react-query";
+import {
+  createTable,
+  createToDoList,
+  getListsToDoListTitles,
+  getToDoListData,
+} from "../api";
 
 type Inputs = {
-  title: string;
-  imageName: string;
+  toDoTitle: string;
 };
 const AlertDialogAddCheckList = ({
   isOpen,
   onClose,
   cancelRef,
+  cardId,
 }: {
   isOpen: boolean;
   onClose: () => void;
   cancelRef: RefObject<HTMLButtonElement>;
+  cardId: string;
 }) => {
   const {
     setValue,
@@ -38,7 +44,12 @@ const AlertDialogAddCheckList = ({
     formState: { errors },
   } = useForm<Inputs>();
 
-  const addNewTable = useMutation(createTable, {
+  const onSubmit: SubmitHandler<Inputs> = ({ toDoTitle }) => {
+    addNewToDoList.mutate({ toDoTitle, cardId });
+  };
+
+  const queryClientDescriptionUpdate = useQueryClient();
+  const addNewToDoList = useMutation(createToDoList, {
     onSuccess: () => {
       alert("Your board was successfully created!");
       onClose();
@@ -46,18 +57,22 @@ const AlertDialogAddCheckList = ({
     onError: () => {
       alert("Something went wrong!");
     },
+    onSettled: () => {
+      queryClientDescriptionUpdate.invalidateQueries([
+        `ListsToDoListTitles${cardId}`,
+      ]);
+    },
   });
-  const onSubmit: SubmitHandler<Inputs> = ({ title, imageName }) => {
-    addNewTable.mutate({ title, imageName });
-  };
-
-  const imageName = watch("imageName");
 
   const handleClick = () => {
     reset();
     onClose();
   };
 
+  const { data } = useQuery(`ListsToDoListTitles${cardId}`, () =>
+    getListsToDoListTitles(String(cardId))
+  );
+  console.log("todoData", data);
   return (
     <AlertDialog
       motionPreset="slideInBottom"
@@ -80,12 +95,12 @@ const AlertDialogAddCheckList = ({
                 marginTop: "10px",
                 marginBottom: "20px",
               }}
-              {...register("title", { required: true, maxLength: 18 })}
+              {...register("toDoTitle", { required: true, maxLength: 18 })}
             />
-            {errors.title?.type === "required" && (
+            {errors.toDoTitle?.type === "required" && (
               <span style={{ color: "red" }}>This field is required!</span>
             )}
-            {errors.title?.type === "maxLength" && (
+            {errors.toDoTitle?.type === "maxLength" && (
               <p style={{ color: "red" }} role="alert">
                 Max Length is 18 symbols
               </p>

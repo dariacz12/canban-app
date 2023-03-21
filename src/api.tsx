@@ -66,6 +66,19 @@ type ListsListCardsTitles = {
     };
   };
 };
+type ListsToDoListTitles = {
+  id: number;
+  attributes: {
+    todo_lists: {
+      data: {
+        id: number;
+        attributes: {
+          toDoTitle: string;
+        };
+      }[];
+    };
+  };
+};
 type CardDataDescription = {
   id: number;
   attributes: {
@@ -74,6 +87,12 @@ type CardDataDescription = {
   };
 };
 
+type toDoListTitleData = {
+  id: number;
+  attributes: {
+    toDoTitle: string;
+  };
+};
 type ListsListData = {
   id: number;
   attributes: {
@@ -85,6 +104,7 @@ type CardtData = {
   title: string;
   listId: String;
 };
+
 export const createAccount = async ({
   email,
   username,
@@ -389,3 +409,52 @@ export const deleteCard = async (cardId: string) =>
       }`,
     },
   });
+export const createToDoList = async ({
+  toDoTitle,
+  cardId,
+}: {
+  toDoTitle: string;
+  cardId: string;
+}): Promise<toDoListTitleData> =>
+  axios.post(
+    `${BASE_URL}/api/todo-lists`,
+    {
+      data: {
+        toDoTitle,
+        cards: [cardId],
+      },
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${
+          JSON.parse(localStorage.getItem("loginData") || "").token
+        }`,
+      },
+    }
+  );
+export const getListsToDoListTitles = async (
+  cardId: string
+): Promise<ListsToDoListTitles> => {
+  return (
+    await axios.get(`${BASE_URL}/api/cards/${cardId}?populate=*`, {
+      headers: {
+        Authorization: `Bearer ${
+          JSON.parse(localStorage.getItem("loginData") || "").token
+        }`,
+      },
+    })
+  ).data.data;
+};
+export const getToDoListData = async (
+  toDoListId: string
+): Promise<toDoListTitleData> => {
+  return (
+    await axios.get(`${BASE_URL}/api/todo-lists/${toDoListId}?populate=*`, {
+      headers: {
+        Authorization: `Bearer ${
+          JSON.parse(localStorage.getItem("loginData") || "").token
+        }`,
+      },
+    })
+  ).data.data;
+};

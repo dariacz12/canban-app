@@ -21,7 +21,13 @@ import AlertDialogAddAttachment from "./AlertDialogAddAttachment";
 import AlertDialogAddCover from "./AlertDialogAddCover";
 import Ckecklist from "./Ckecklist";
 import { useMutation, useQuery, useQueryClient } from "react-query";
-import { getCardData, updateCardDescription, updateCardTitle } from "../api";
+import {
+  getCardData,
+  getListsToDoListTitles,
+  getToDoListData,
+  updateCardDescription,
+  updateCardTitle,
+} from "../api";
 import useClickOutside from "../customHooks/useClickOutside";
 const Wrap = styled.div``;
 const Main = styled.div`
@@ -85,6 +91,10 @@ const CartItemEdit = ({
       }
     }
   };
+  const { data: todoListsList } = useQuery(`ListsToDoListTitles${cardId}`, () =>
+    getListsToDoListTitles(String(cardId))
+  );
+  console.log("todoData", todoListsList);
   const cardTitleInputWraperRef = useRef<HTMLDivElement>(null);
 
   const onTitleSaved = () => {
@@ -125,6 +135,7 @@ const CartItemEdit = ({
       queryClientDescriptionUpdate.invalidateQueries([`cardData${cardId}`]);
     },
   });
+
   return (
     <>
       <Modal isOpen={isOpen && !isOpenCover} onClose={onClose}>
@@ -195,6 +206,7 @@ const CartItemEdit = ({
                   onClose={onClose}
                 />
               </LeftMain>
+
               <RightMain
                 style={{
                   padding:
@@ -211,51 +223,57 @@ const CartItemEdit = ({
                       : "0px 20px",
                 }}
               >
-                <TextAriaContainer>
-                  <Text
-                    color={"#4c4c4c"}
-                    fontWeight="bold"
-                    fontSize="sm"
-                    marginBottom={"10px"}
-                  >
-                    Description
-                  </Text>
-                  <Wrap ref={cardDescriptionWraperRef}>
-                    <form onSubmit={handleSubmit(onSubmitDescription)}>
-                      <Textarea
-                        focusBorderColor="#53735E"
-                        placeholder={
-                          description
-                            ? description
-                            : "Add more detailed description"
-                        }
-                        _placeholder={{ fontSize: "sm" }}
-                        style={{ marginBottom: "10px" }}
-                        {...register("description", { maxLength: 2000 })}
-                        onClick={() =>
-                          setValue(
-                            "description",
-                            String(description ? description : "")
-                          )
-                        }
-                        onChange={(
-                          event: React.ChangeEvent<HTMLTextAreaElement>
-                        ) => {
-                          updateCardDescriptionMutation.mutate({
-                            description: event.target.value,
-                            cardId: String(cardId),
-                          });
-                        }}
-                      />
-                      {errors.description?.type === "maxLength" && (
-                        <p style={{ color: "red" }} role="alert">
-                          Max Length is 2000 symbols
-                        </p>
-                      )}
-                    </form>
-                  </Wrap>
-                </TextAriaContainer>
-                <Ckecklist />
+                <>
+                  <TextAriaContainer>
+                    <Text
+                      color={"#4c4c4c"}
+                      fontWeight="bold"
+                      fontSize="sm"
+                      marginBottom={"10px"}
+                    >
+                      Description
+                    </Text>
+                    <Wrap ref={cardDescriptionWraperRef}>
+                      <form onSubmit={handleSubmit(onSubmitDescription)}>
+                        <Textarea
+                          focusBorderColor="#53735E"
+                          placeholder={
+                            description
+                              ? description
+                              : "Add more detailed description"
+                          }
+                          _placeholder={{ fontSize: "sm" }}
+                          style={{ marginBottom: "10px" }}
+                          {...register("description", { maxLength: 2000 })}
+                          onClick={() =>
+                            setValue(
+                              "description",
+                              String(description ? description : "")
+                            )
+                          }
+                          onChange={(
+                            event: React.ChangeEvent<HTMLTextAreaElement>
+                          ) => {
+                            updateCardDescriptionMutation.mutate({
+                              description: event.target.value,
+                              cardId: String(cardId),
+                            });
+                          }}
+                        />
+                        {errors.description?.type === "maxLength" && (
+                          <p style={{ color: "red" }} role="alert">
+                            Max Length is 2000 symbols
+                          </p>
+                        )}
+                      </form>
+                    </Wrap>
+                  </TextAriaContainer>
+                  {todoListsList?.attributes.todo_lists.data.map(
+                    ({ attributes }) => {
+                      return <Ckecklist title={attributes.toDoTitle} />;
+                    }
+                  )}
+                </>
               </RightMain>
             </Main>
           </ModalBody>
@@ -265,6 +283,7 @@ const CartItemEdit = ({
         isOpen={isOpenCheckList}
         onClose={onCloseCheckList}
         cancelRef={cancelRef}
+        cardId={cardId}
       />
       <AlertDialogAddAttachment
         isOpen={isOpenAttachment}

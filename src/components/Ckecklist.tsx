@@ -22,7 +22,7 @@ const Checkboxes = styled.div`
   max-width: 450px;
 `;
 
-const Ckecklist = () => {
+const Ckecklist = ({ title }: { title: string }) => {
   const [addItem, setAddItem] = useState<string[]>([]);
   useEffect(() => {
     setFocus("checkboxitem");
@@ -37,6 +37,7 @@ const Ckecklist = () => {
     setFocus,
     resetField,
     getValues,
+    setValue,
     formState: { errors },
   } = useForm<Inputs>();
 
@@ -50,10 +51,11 @@ const Ckecklist = () => {
           color: "#4c4c4c",
           paddingLeft: "0px",
         }}
-        focusBorderColor="#53735E"
-        placeholder="Checbox Title"
-        style={{ border: "none", margin: "0px 25px 0px 5px " }}
         {...register("title", { maxLength: 18 })}
+        focusBorderColor="#53735E"
+        placeholder={title ? title : "Checlist Title"}
+        onClick={() => setValue("title", title)}
+        style={{ border: "none", margin: "0px 25px 0px 5px " }}
       />
       {errors.title?.type === "maxLength" && (
         <p style={{ color: "red" }} role="alert">
@@ -104,14 +106,10 @@ const Ckecklist = () => {
       </Checkboxes>
       <Input
         focusBorderColor="#53735E"
-        placeholder="Add an item"
-        // marginLeft={"20px"}
-
         marginTop={"5px"}
         _placeholder={{
           fontSize: "sm",
         }}
-        //  maxWidth={"425px"}
         style={{ marginBottom: "10px" }}
         {...register("checkboxitem", { required: true, maxLength: 18 })}
       />
