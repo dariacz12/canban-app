@@ -12,18 +12,20 @@ import { SubmitHandler, useForm, useWatch } from "react-hook-form";
 import { RefObject } from "react";
 import AddBackgroundImage from "./AddBackgroundImage";
 
-import { useMutation } from "react-query";
-import { createTable } from "../api";
+import { useMutation, useQueryClient } from "react-query";
+import { createTable, updateCardCover } from "../api";
 
 type Inputs = {
-  title: string;
   imageName: string;
+  cardId: string;
 };
 const AlertDialogAddCover = ({
+  cardId,
   isOpen,
   onClose,
   cancelRef,
 }: {
+  cardId: string;
   isOpen: boolean;
   onClose: () => void;
   cancelRef: RefObject<HTMLButtonElement>;
@@ -33,20 +35,25 @@ const AlertDialogAddCover = ({
     handleSubmit,
     watch,
     reset,
+    register,
     formState: { errors },
   } = useForm<Inputs>();
 
-  const addNewTable = useMutation(createTable, {
+  const queryClientCardCoverUpdate = useQueryClient();
+  const updateCardCoverMutation = useMutation(updateCardCover, {
     onSuccess: () => {
-      alert("Your board was successfully created!");
       onClose();
     },
     onError: () => {
-      alert("Something went wrong!");
+      alert("Something went wrong");
+    },
+    onSettled: () => {
+      queryClientCardCoverUpdate.invalidateQueries([`cardData${cardId}`]);
     },
   });
-  const onSubmit: SubmitHandler<Inputs> = ({ title, imageName }) => {
-    addNewTable.mutate({ title, imageName });
+  const onSubmit: SubmitHandler<Inputs> = ({ imageName }) => {
+    console.log(imageName);
+    updateCardCoverMutation.mutate({ coverImage: imageName, cardId });
   };
 
   const imageName = watch("imageName");
@@ -66,36 +73,42 @@ const AlertDialogAddCover = ({
     >
       <AlertDialogOverlay />
       <AlertDialogContent>
-        <AlertDialogCloseButton />
-        <AlertDialogBody
-          style={{ marginTop: "40px", overflow: "scroll", maxHeight: 500 }}
-        >
-          <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <AlertDialogCloseButton />
+          <AlertDialogBody
+            style={{ marginTop: "40px", overflow: "scroll", maxHeight: 500 }}
+          >
             <FormLabel style={{ marginLeft: "40px" }}>
               Choose a cover image:
             </FormLabel>
             <AddBackgroundImage
               imageName={imageName}
               onChange={(imageName) => {
+                console.log("image", imageName);
                 setValue("imageName", imageName);
               }}
             />
-          </form>
-        </AlertDialogBody>
-        <AlertDialogFooter>
-          <Button ref={cancelRef} onClick={handleClick}>
-            Cancel
-          </Button>
-          <Button
-            background="#53735E"
-            color="#F2F2F2"
-            _hover={{ color: "black", bg: "#F2F2F2" }}
-            ml={3}
-            type="submit"
-          >
-            Create
-          </Button>
-        </AlertDialogFooter>
+            {errors.imageName?.type === "required" && (
+              <p style={{ color: "red" }} role="alert">
+                Choose a cover image!
+              </p>
+            )}
+          </AlertDialogBody>
+          <AlertDialogFooter>
+            <Button ref={cancelRef} onClick={handleClick}>
+              Cancel
+            </Button>
+            <Button
+              background="#53735E"
+              color="#F2F2F2"
+              _hover={{ color: "black", bg: "#F2F2F2" }}
+              ml={3}
+              type="submit"
+            >
+              Create
+            </Button>
+          </AlertDialogFooter>
+        </form>
       </AlertDialogContent>
     </AlertDialog>
   );

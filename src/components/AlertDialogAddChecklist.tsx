@@ -36,22 +36,21 @@ const AlertDialogAddCheckList = ({
   cardId: string;
 }) => {
   const {
-    setValue,
+    resetField,
     register,
     handleSubmit,
-    watch,
     reset,
     formState: { errors },
   } = useForm<Inputs>();
 
   const onSubmit: SubmitHandler<Inputs> = ({ toDoTitle }) => {
     addNewToDoList.mutate({ toDoTitle, cardId });
+    resetField("toDoTitle");
   };
 
   const queryClientDescriptionUpdate = useQueryClient();
   const addNewToDoList = useMutation(createToDoList, {
     onSuccess: () => {
-      alert("Your board was successfully created!");
       onClose();
     },
     onError: () => {
@@ -65,14 +64,11 @@ const AlertDialogAddCheckList = ({
   });
 
   const handleClick = () => {
+    resetField("toDoTitle");
     reset();
     onClose();
   };
 
-  const { data } = useQuery(`ListsToDoListTitles${cardId}`, () =>
-    getListsToDoListTitles(String(cardId))
-  );
-  console.log("todoData", data);
   return (
     <AlertDialog
       motionPreset="slideInBottom"

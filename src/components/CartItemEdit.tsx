@@ -34,8 +34,19 @@ const Main = styled.div`
   display: flex;
   width: 100%;
 `;
+const ToDoListsContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  row-gap: 4;
+  overflow: scroll;
+  flex: 1;
+  max-height: 500px;
+`;
 const RightMain = styled.div`
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  max-height: "400px";
 `;
 const LeftMain = styled.div``;
 const TextAriaContainer = styled.div``;
@@ -82,7 +93,6 @@ const CartItemEdit = ({
     onClose: onCloseCover,
   } = useDisclosure();
   const cancelRef = React.useRef<HTMLButtonElement>(null);
-  const [cover, setCover] = useState<Boolean>(false);
 
   const handleKeyPress = (event: any) => {
     if (event.key === "Enter") {
@@ -94,7 +104,7 @@ const CartItemEdit = ({
   const { data: todoListsList } = useQuery(`ListsToDoListTitles${cardId}`, () =>
     getListsToDoListTitles(String(cardId))
   );
-  console.log("todoData", todoListsList);
+
   const cardTitleInputWraperRef = useRef<HTMLDivElement>(null);
 
   const onTitleSaved = () => {
@@ -117,7 +127,8 @@ const CartItemEdit = ({
     getCardData(String(cardId))
   );
   const description = data?.attributes?.description;
-
+  const cover = data?.attributes?.cover;
+  console.log("cardData", data);
   const cardDescriptionWraperRef = useRef<HTMLDivElement>(null);
   const onDescriptionSaved = () => {
     resetField("description");
@@ -141,7 +152,7 @@ const CartItemEdit = ({
       <Modal isOpen={isOpen && !isOpenCover} onClose={onClose}>
         <ModalContent
           style={{
-            maxHeight: 500,
+            maxHeight: "1000px",
             maxWidth: "700px",
             top: "80px",
             margin: " 0px 20px",
@@ -161,7 +172,7 @@ const CartItemEdit = ({
                 <Image
                   maxW="450px"
                   maxH="200px"
-                  src={require("../photos/boardelementphototest2.jpg")}
+                  src={require(`../photos/${cover}.jpg`)}
                   alt="register photo"
                 />
               </Box>
@@ -209,6 +220,8 @@ const CartItemEdit = ({
 
               <RightMain
                 style={{
+                  display: "flex",
+                  flexDirection: "column",
                   padding:
                     mediaQuery === "sm"
                       ? "0px 60px"
@@ -243,7 +256,7 @@ const CartItemEdit = ({
                               : "Add more detailed description"
                           }
                           _placeholder={{ fontSize: "sm" }}
-                          style={{ marginBottom: "10px" }}
+                          style={{ marginBottom: "10px", height: "149px" }}
                           {...register("description", { maxLength: 2000 })}
                           onClick={() =>
                             setValue(
@@ -268,11 +281,20 @@ const CartItemEdit = ({
                       </form>
                     </Wrap>
                   </TextAriaContainer>
-                  {todoListsList?.attributes.todo_lists.data.map(
-                    ({ attributes }) => {
-                      return <Ckecklist title={attributes.toDoTitle} />;
-                    }
-                  )}
+                  <ToDoListsContainer>
+                    {todoListsList?.attributes.todo_lists.data.map(
+                      ({ attributes, id }) => {
+                        return (
+                          <Ckecklist
+                            toDoTitleId={String(id)}
+                            key={id}
+                            cardId={String(cardId)}
+                            title={attributes.toDoTitle}
+                          />
+                        );
+                      }
+                    )}
+                  </ToDoListsContainer>
                 </>
               </RightMain>
             </Main>
@@ -291,6 +313,7 @@ const CartItemEdit = ({
         cancelRef={cancelRef}
       />
       <AlertDialogAddCover
+        cardId={String(cardId)}
         isOpen={isOpenCover}
         onClose={onCloseCover}
         cancelRef={cancelRef}

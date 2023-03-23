@@ -1,9 +1,4 @@
-import {
-  AppstoreAddOutlined,
-  ClearOutlined,
-  UserOutlined,
-} from "@ant-design/icons";
-import { HamburgerIcon, StarIcon } from "@chakra-ui/icons";
+import { StarIcon } from "@chakra-ui/icons";
 import {
   Card,
   CardBody,
@@ -17,7 +12,6 @@ import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import { updateTableTitle } from "../api";
 import usePageList from "../customHooks/usePageList";
-import BurgerMenu from "./BurgerMenu";
 import ChangeBackgroundImage from "./ChangeBackgroundImage";
 import TableBurgerMenu from "./TableBurgerMenu";
 
@@ -32,7 +26,7 @@ const TableMenu = () => {
   const [activeStar, setActiveStar] = useState<Boolean>(false);
   const { setValue, register } = useForm();
   const [state] = usePageList();
-  console.log("myState", state);
+
   let { tableId } = useParams<{ tableId?: string }>();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const cancelRef = React.useRef<HTMLButtonElement>(null);

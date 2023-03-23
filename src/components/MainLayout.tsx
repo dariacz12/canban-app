@@ -13,13 +13,10 @@ const MainLayout = () => {
   const location = useLocation();
   let { tableId } = useParams();
 
-  console.log(333, state);
-
   const theImageName = state?.find(
     ({ id }) => String(id) === tableId
   )?.imageName;
 
-  console.log("newimage", theImageName);
   return (
     <div>
       <Content
