@@ -21,15 +21,32 @@ import AlertDialogAddAttachment from "./AlertDialogAddAttachment";
 import AlertDialogAddCover from "./AlertDialogAddCover";
 import Ckecklist from "./Ckecklist";
 import { useMutation, useQuery, useQueryClient } from "react-query";
-import { getCardData, updateCardDescription, updateCardTitle } from "../api";
+import {
+  getCardData,
+  getListsToDoListTitles,
+  getToDoListData,
+  updateCardDescription,
+  updateCardTitle,
+} from "../api";
 import useClickOutside from "../customHooks/useClickOutside";
 const Wrap = styled.div``;
 const Main = styled.div`
   display: flex;
   width: 100%;
 `;
+const ToDoListsContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  row-gap: 4;
+  overflow: scroll;
+  flex: 1;
+  max-height: 500px;
+`;
 const RightMain = styled.div`
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  max-height: "400px";
 `;
 const LeftMain = styled.div``;
 const TextAriaContainer = styled.div``;
@@ -76,7 +93,6 @@ const CartItemEdit = ({
     onClose: onCloseCover,
   } = useDisclosure();
   const cancelRef = React.useRef<HTMLButtonElement>(null);
-  const [cover, setCover] = useState<Boolean>(false);
 
   const handleKeyPress = (event: any) => {
     if (event.key === "Enter") {
@@ -85,6 +101,10 @@ const CartItemEdit = ({
       }
     }
   };
+  const { data: todoListsList } = useQuery(`ListsToDoListTitles${cardId}`, () =>
+    getListsToDoListTitles(String(cardId))
+  );
+
   const cardTitleInputWraperRef = useRef<HTMLDivElement>(null);
 
   const onTitleSaved = () => {
@@ -107,7 +127,8 @@ const CartItemEdit = ({
     getCardData(String(cardId))
   );
   const description = data?.attributes?.description;
-
+  const cover = data?.attributes?.cover;
+  console.log("cardData", data);
   const cardDescriptionWraperRef = useRef<HTMLDivElement>(null);
   const onDescriptionSaved = () => {
     resetField("description");
@@ -125,12 +146,13 @@ const CartItemEdit = ({
       queryClientDescriptionUpdate.invalidateQueries([`cardData${cardId}`]);
     },
   });
+
   return (
     <>
       <Modal isOpen={isOpen && !isOpenCover} onClose={onClose}>
         <ModalContent
           style={{
-            maxHeight: 500,
+            maxHeight: "1000px",
             maxWidth: "700px",
             top: "80px",
             margin: " 0px 20px",
@@ -150,7 +172,7 @@ const CartItemEdit = ({
                 <Image
                   maxW="450px"
                   maxH="200px"
-                  src={require("../photos/boardelementphototest2.jpg")}
+                  src={require(`../photos/${cover}.jpg`)}
                   alt="register photo"
                 />
               </Box>
@@ -195,8 +217,11 @@ const CartItemEdit = ({
                   onClose={onClose}
                 />
               </LeftMain>
+
               <RightMain
                 style={{
+                  display: "flex",
+                  flexDirection: "column",
                   padding:
                     mediaQuery === "sm"
                       ? "0px 60px"
@@ -211,51 +236,66 @@ const CartItemEdit = ({
                       : "0px 20px",
                 }}
               >
-                <TextAriaContainer>
-                  <Text
-                    color={"#4c4c4c"}
-                    fontWeight="bold"
-                    fontSize="sm"
-                    marginBottom={"10px"}
-                  >
-                    Description
-                  </Text>
-                  <Wrap ref={cardDescriptionWraperRef}>
-                    <form onSubmit={handleSubmit(onSubmitDescription)}>
-                      <Textarea
-                        focusBorderColor="#53735E"
-                        placeholder={
-                          description
-                            ? description
-                            : "Add more detailed description"
-                        }
-                        _placeholder={{ fontSize: "sm" }}
-                        style={{ marginBottom: "10px" }}
-                        {...register("description", { maxLength: 2000 })}
-                        onClick={() =>
-                          setValue(
-                            "description",
-                            String(description ? description : "")
-                          )
-                        }
-                        onChange={(
-                          event: React.ChangeEvent<HTMLTextAreaElement>
-                        ) => {
-                          updateCardDescriptionMutation.mutate({
-                            description: event.target.value,
-                            cardId: String(cardId),
-                          });
-                        }}
-                      />
-                      {errors.description?.type === "maxLength" && (
-                        <p style={{ color: "red" }} role="alert">
-                          Max Length is 2000 symbols
-                        </p>
-                      )}
-                    </form>
-                  </Wrap>
-                </TextAriaContainer>
-                <Ckecklist />
+                <>
+                  <TextAriaContainer>
+                    <Text
+                      color={"#4c4c4c"}
+                      fontWeight="bold"
+                      fontSize="sm"
+                      marginBottom={"10px"}
+                    >
+                      Description
+                    </Text>
+                    <Wrap ref={cardDescriptionWraperRef}>
+                      <form onSubmit={handleSubmit(onSubmitDescription)}>
+                        <Textarea
+                          focusBorderColor="#53735E"
+                          placeholder={
+                            description
+                              ? description
+                              : "Add more detailed description"
+                          }
+                          _placeholder={{ fontSize: "sm" }}
+                          style={{ marginBottom: "10px", height: "149px" }}
+                          {...register("description", { maxLength: 2000 })}
+                          onClick={() =>
+                            setValue(
+                              "description",
+                              String(description ? description : "")
+                            )
+                          }
+                          onChange={(
+                            event: React.ChangeEvent<HTMLTextAreaElement>
+                          ) => {
+                            updateCardDescriptionMutation.mutate({
+                              description: event.target.value,
+                              cardId: String(cardId),
+                            });
+                          }}
+                        />
+                        {errors.description?.type === "maxLength" && (
+                          <p style={{ color: "red" }} role="alert">
+                            Max Length is 2000 symbols
+                          </p>
+                        )}
+                      </form>
+                    </Wrap>
+                  </TextAriaContainer>
+                  <ToDoListsContainer>
+                    {todoListsList?.attributes.todo_lists.data.map(
+                      ({ attributes, id }) => {
+                        return (
+                          <Ckecklist
+                            toDoTitleId={String(id)}
+                            key={id}
+                            cardId={String(cardId)}
+                            title={attributes.toDoTitle}
+                          />
+                        );
+                      }
+                    )}
+                  </ToDoListsContainer>
+                </>
               </RightMain>
             </Main>
           </ModalBody>
@@ -265,6 +305,7 @@ const CartItemEdit = ({
         isOpen={isOpenCheckList}
         onClose={onCloseCheckList}
         cancelRef={cancelRef}
+        cardId={cardId}
       />
       <AlertDialogAddAttachment
         isOpen={isOpenAttachment}
@@ -272,6 +313,7 @@ const CartItemEdit = ({
         cancelRef={cancelRef}
       />
       <AlertDialogAddCover
+        cardId={String(cardId)}
         isOpen={isOpenCover}
         onClose={onCloseCover}
         cancelRef={cancelRef}

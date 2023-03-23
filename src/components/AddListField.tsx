@@ -45,7 +45,6 @@ const AddListField = ({
   const onSubmit: SubmitHandler<Inputs> = ({ title }) => {
     addNewList.mutate({ title, table: String(tableId) });
     resetField("title");
-    console.log("datalist", { title });
   };
   return (
     <form onSubmit={handleSubmit(onSubmit)}>

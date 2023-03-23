@@ -10,6 +10,7 @@ import { useState } from "react";
 import { useQuery } from "react-query";
 import { getCardData } from "../api";
 import CartItemEdit from "./CartItemEdit";
+
 const CardItem = ({
   title,
   cardId,
@@ -19,14 +20,10 @@ const CardItem = ({
   cardId: string;
   listId: string;
 }) => {
-  const [cover, setCover] = useState<Boolean>(false);
-
-  // const { data } = useQuery(`cardData${cardId}`, () =>
-  //   getCardData(String(cardId))
-  // );
-  // console.log("description", data)
-  // const description = data? data.attributes.attributes.description : "";
-  // console.log("my description", description)
+  const { data } = useQuery(`cardData${cardId}`, () =>
+    getCardData(String(cardId))
+  );
+  const cover = data?.attributes.cover;
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
@@ -44,7 +41,7 @@ const CardItem = ({
               <Image
                 maxW="150px"
                 maxH="150px"
-                src={require("../photos/boardelementphototest2.jpg")}
+                src={require(`../photos/${cover}.jpg`)}
                 alt="register photo"
               />
             </Box>

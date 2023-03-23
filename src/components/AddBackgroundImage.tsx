@@ -33,7 +33,7 @@ const AddBackgroundImage = ({
         alignItems: "center",
       }}
     >
-      {backgroundBoardTable.map(({ imageName: itemImageName }) => (
+      {backgroundBoardTable.map(({ imageName: itemImageName, id }) => (
         <div
           style={{
             display: "flex",

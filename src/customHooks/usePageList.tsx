@@ -8,8 +8,6 @@ const usePageList = () => {
   >();
   const { data } = useQuery("tableList", getTableList);
 
-  console.log(2, data);
-
   useEffect(() => {
     setState(
       data?.map(({ id, attributes }) => ({

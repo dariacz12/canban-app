@@ -47,7 +47,6 @@ const List = ({ listId, listName }: { listId: string; listName: string }) => {
   const { data } = useQuery(`cardTitle${listId}`, () =>
     getListsListCardsTitles(String(listId))
   );
-  console.log("moja lista z cartami ", data);
   let { tableId } = useParams();
   const {
     register,
@@ -184,6 +183,7 @@ const List = ({ listId, listName }: { listId: string; listName: string }) => {
             {data &&
               data?.attributes?.cards?.data?.map(({ attributes, id }) => (
                 <CardItem
+                  key={id}
                   title={attributes.title}
                   cardId={String(id)}
                   listId={listId}

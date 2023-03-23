@@ -66,11 +66,72 @@ type ListsListCardsTitles = {
     };
   };
 };
-type CardDataDescription = {
+type ListsToDoListTitles = {
   id: number;
   attributes: {
+    todo_lists: {
+      data: {
+        id: number;
+        attributes: {
+          toDoTitle: string;
+        };
+      }[];
+    };
+  };
+};
+type ListsCheckboxes = {
+  id: number;
+  attributes: {
+    checkboxes: {
+      data: {
+        id: number;
+        attributes: {
+          checkboxTitle: string;
+        };
+      }[];
+    };
+  };
+};
+type CardData = {
+  id: number;
+  attributes: {
+    cover: string;
     title: string;
     description: string;
+  };
+};
+
+type toDoListTitleData = {
+  id: number;
+  attributes: {
+    toDoTitle: string;
+  };
+};
+
+type CheckboxData = {
+  id: number;
+  attributes: {
+    checkboxTitle: string;
+  };
+};
+type CoverData = {
+  id: number;
+  attributes: {
+    cards: {
+      data: {
+        id: number;
+        attributes: {
+          covers: {
+            data: {
+              id: number;
+              attributes: {
+                coverImage: string;
+              };
+            }[];
+          };
+        };
+      }[];
+    };
   };
 };
 
@@ -85,6 +146,7 @@ type CardtData = {
   title: string;
   listId: String;
 };
+
 export const createAccount = async ({
   email,
   username,
@@ -324,9 +386,7 @@ export const getListsListCardsTitles = async (
     })
   ).data.data;
 };
-export const getCardData = async (
-  cardId: string
-): Promise<CardDataDescription> => {
+export const getCardData = async (cardId: string): Promise<CardData> => {
   return (
     await axios.get(`${BASE_URL}/api/cards/${cardId}?populate=*`, {
       headers: {
@@ -389,3 +449,175 @@ export const deleteCard = async (cardId: string) =>
       }`,
     },
   });
+export const createToDoList = async ({
+  toDoTitle,
+  cardId,
+}: {
+  toDoTitle: string;
+  cardId: string;
+}): Promise<toDoListTitleData> =>
+  axios.post(
+    `${BASE_URL}/api/todo-lists`,
+    {
+      data: {
+        toDoTitle,
+        cards: [cardId],
+      },
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${
+          JSON.parse(localStorage.getItem("loginData") || "").token
+        }`,
+      },
+    }
+  );
+export const getListsToDoListTitles = async (
+  cardId: string
+): Promise<ListsToDoListTitles> => {
+  return (
+    await axios.get(`${BASE_URL}/api/cards/${cardId}?populate=*`, {
+      headers: {
+        Authorization: `Bearer ${
+          JSON.parse(localStorage.getItem("loginData") || "").token
+        }`,
+      },
+    })
+  ).data.data;
+};
+export const getToDoListData = async (
+  toDoListId: string
+): Promise<toDoListTitleData> => {
+  return (
+    await axios.get(`${BASE_URL}/api/todo-lists/${toDoListId}?populate=*`, {
+      headers: {
+        Authorization: `Bearer ${
+          JSON.parse(localStorage.getItem("loginData") || "").token
+        }`,
+      },
+    })
+  ).data.data;
+};
+export const updateToDoListTitle = async ({
+  toDoTitle,
+  toDoTitleId,
+}: {
+  toDoTitle: string;
+  toDoTitleId: string;
+}) =>
+  axios.put(
+    `${BASE_URL}/api/todo-lists/${toDoTitleId}`,
+    {
+      data: {
+        toDoTitle,
+      },
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${
+          JSON.parse(localStorage.getItem("loginData") || "").token
+        }`,
+      },
+    }
+  );
+export const deleteToDoList = async ({
+  toDoTitleId,
+}: {
+  toDoTitleId: string;
+}) =>
+  axios.delete(`${BASE_URL}/api/todo-lists/${toDoTitleId}`, {
+    headers: {
+      Authorization: `Bearer ${
+        JSON.parse(localStorage.getItem("loginData") || "").token
+      }`,
+    },
+  });
+
+export const createCheckbox = async ({
+  checkboxTitle,
+  toDoTitleId,
+}: {
+  checkboxTitle: string;
+  toDoTitleId: string;
+}): Promise<CheckboxData> =>
+  axios.post(
+    `${BASE_URL}/api/checkboxes`,
+    {
+      data: {
+        checkboxTitle,
+        todo_lists: [toDoTitleId],
+      },
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${
+          JSON.parse(localStorage.getItem("loginData") || "").token
+        }`,
+      },
+    }
+  );
+export const updateCheckboxTitle = async ({
+  checkboxTitle,
+  checkboxId,
+}: {
+  checkboxTitle: string;
+  checkboxId: string;
+}) =>
+  axios.put(
+    `${BASE_URL}/api/checkboxes/${checkboxId}`,
+    {
+      data: {
+        checkboxTitle,
+      },
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${
+          JSON.parse(localStorage.getItem("loginData") || "").token
+        }`,
+      },
+    }
+  );
+export const getListsCheckboxes = async (
+  toDoTitleId: string
+): Promise<ListsCheckboxes> => {
+  return (
+    await axios.get(`${BASE_URL}/api/todo-lists/${toDoTitleId}?populate=*`, {
+      headers: {
+        Authorization: `Bearer ${
+          JSON.parse(localStorage.getItem("loginData") || "").token
+        }`,
+      },
+    })
+  ).data.data;
+};
+export const deleteCheckbox = async ({ checkboxId }: { checkboxId: string }) =>
+  axios.delete(`${BASE_URL}/api/checkboxes/${checkboxId}`, {
+    headers: {
+      Authorization: `Bearer ${
+        JSON.parse(localStorage.getItem("loginData") || "").token
+      }`,
+    },
+  });
+export const updateCardCover = async ({
+  coverImage,
+  cardId,
+}: {
+  coverImage: string;
+  cardId: string;
+}) =>
+  axios.put(
+    `${BASE_URL}/api/cards/${cardId}`,
+    {
+      data: {
+        cover: coverImage,
+      },
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${
+          JSON.parse(localStorage.getItem("loginData") || "").token
+        }`,
+      },
+    }
+  );
