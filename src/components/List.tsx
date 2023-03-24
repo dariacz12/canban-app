@@ -18,14 +18,17 @@ import {
   Text,
   useDisclosure,
 } from "@chakra-ui/react";
-import { useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
 import { deleteList, getListsListCardsTitles, updateListTitle } from "../api";
 import useClickOutside from "../customHooks/useClickOutside";
+import usePageList from "../customHooks/usePageList";
 import AddCardField from "./AddCardField";
+import AlertDialogMoveList from "./AlertDialogMoveList";
+import AlertDialogNewBoard from "./AlertDialogNewBoard";
 import CardItem from "./CardItem";
 
 const Main = styled.div`
@@ -44,6 +47,9 @@ type Inputs = {
   title: string;
 };
 const List = ({ listId, listName }: { listId: string; listName: string }) => {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const cancelRef = React.useRef<HTMLButtonElement>(null);
+  const [state] = usePageList();
   const { data } = useQuery(`cardTitle${listId}`, () =>
     getListsListCardsTitles(String(listId))
   );
@@ -166,16 +172,22 @@ const List = ({ listId, listName }: { listId: string; listName: string }) => {
                 variant="outline"
               />
               <MenuList>
-                <MenuItem icon={<ArrowForwardIcon />}>
+                <MenuItem icon={<ArrowForwardIcon />} onClick={onOpen}>
                   Move list to another board
                 </MenuItem>
-                <MenuItem icon={<CopyIcon />}>Copy list</MenuItem>
+                {/* <MenuItem icon={<CopyIcon />}>Copy list</MenuItem> */}
                 <MenuItem
                   onClick={() => deleteListsListMutation.mutate(listId)}
                   icon={<DeleteIcon />}
                 >
                   Delete list
                 </MenuItem>
+                <AlertDialogMoveList
+                  isOpen={isOpen}
+                  onClose={onClose}
+                  cancelRef={cancelRef}
+                  listId={String(listId)}
+                />
               </MenuList>
             </Menu>
           </Main>

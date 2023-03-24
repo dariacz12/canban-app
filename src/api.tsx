@@ -317,6 +317,28 @@ export const updateListTitle = async ({
       },
     }
   );
+export const moveList = async ({
+  tableId,
+  listId,
+}: {
+  tableId: string;
+  listId: string;
+}) =>
+  axios.put(
+    `${BASE_URL}/api/lists/${listId}`,
+    {
+      data: {
+        tables: [tableId],
+      },
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${
+          JSON.parse(localStorage.getItem("loginData") || "").token
+        }`,
+      },
+    }
+  );
 export const deleteList = async (listId: string) =>
   axios.delete(`${BASE_URL}/api/lists/${listId}`, {
     headers: {
