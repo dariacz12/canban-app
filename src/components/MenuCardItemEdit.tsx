@@ -41,7 +41,7 @@ const items: MenuItem[] = [
   ]),
   getItem("Actions", "sub2", <AppstoreOutlined />, [
     getItem("Move", "5", <ArrowForwardIcon />),
-    getItem("Copy", "6", <CopyIcon />),
+    // getItem("Copy", "6", <CopyIcon />),
     getItem("Delete", "7", <DeleteIcon style={{ color: "dimgray" }} />),
   ]),
 ];
