@@ -15,38 +15,43 @@ import {
   Radio,
   Text,
   Stack,
-  useDisclosure,
 } from "@chakra-ui/react";
 import { SubmitHandler, useForm, useWatch } from "react-hook-form";
-import React, { RefObject, useState } from "react";
+import { RefObject, useState } from "react";
 import AddBackgroundImage from "./AddBackgroundImage";
 
-import { useMutation, useQueryClient } from "react-query";
-import { createTable, moveList } from "../api";
+import { useMutation, useQuery, useQueryClient } from "react-query";
+import {
+  createTable,
+  getTableListsList,
+  moveCardtoAnotherTable,
+  moveList,
+} from "../api";
 import usePageList from "../customHooks/usePageList";
 import { SwapRightOutlined } from "@ant-design/icons";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
-import AlertDialogMoveCard from "./AlertDialogMoveCard";
 
 type Inputs = {
-  tableId: string;
+  listId: string;
 };
 const TableElement = styled.div``;
-const AlertDialogMoveList = ({
+const AlertDialogMoveCard = ({
   isOpen,
   onClose,
   cancelRef,
-  listId,
+  tableId,
   cardMove,
   cardId,
+  listIdFrom,
 }: {
   isOpen: boolean;
   onClose: () => void;
   cancelRef: RefObject<HTMLButtonElement>;
-  listId: string;
+  tableId: string;
   cardMove: boolean;
   cardId: string;
+  listIdFrom: string;
 }) => {
   const {
     setValue,
@@ -56,15 +61,9 @@ const AlertDialogMoveList = ({
     reset,
     formState: { errors },
   } = useForm<Inputs>();
-  const {
-    isOpen: isOpenAlertMoveCard,
-    onOpen,
-    onClose: onCloseCard,
-  } = useDisclosure();
-  const cancelRefAlertMoveCard = React.useRef<HTMLButtonElement>(null);
   let { tableId: tableFirstId } = useParams();
   const queryClient = useQueryClient();
-  const moveListtoAnotherBoard = useMutation(moveList, {
+  const moveCardtoAnotherBoard = useMutation(moveCardtoAnotherTable, {
     onSuccess: () => {
       onClose();
     },
@@ -72,26 +71,25 @@ const AlertDialogMoveList = ({
       alert("Something went wrong!");
     },
     onSettled: () => {
-      queryClient.invalidateQueries([`tableListsList${tableId}`]);
+      queryClient.invalidateQueries([`cardTitle${listId}`]);
       console.log("to", tableId);
-      queryClient.invalidateQueries([`tableListsList${tableFirstId}`]);
+      queryClient.invalidateQueries([`cardTitle${listIdFrom}`]);
       console.log("from", tableFirstId);
     },
   });
-  const onSubmit: SubmitHandler<Inputs> = ({ tableId: id }) => {
-    !cardMove ? moveListtoAnotherBoard.mutate({ tableId, listId }) : onOpen();
+  const onSubmit: SubmitHandler<Inputs> = ({ listId: id }) => {
+    moveCardtoAnotherBoard.mutate({ tableId, listId, cardId });
   };
 
-  const tableId = watch("tableId");
-  const onCloseCardMoveAlert = () => {
-    handleClick();
-    onCloseCard();
-  };
+  const listId = watch("listId");
   const handleClick = () => {
     reset();
     onClose();
   };
-  const [state] = usePageList();
+  const { data } = useQuery(`tableListsList${tableId}`, () =>
+    getTableListsList(String(tableId))
+  );
+
   return (
     <AlertDialog
       motionPreset="slideInBottom"
@@ -109,19 +107,19 @@ const AlertDialogMoveList = ({
           maxW={"500px"}
           height={"400px"}
         >
-          <AlertDialogHeader>Move your list to: </AlertDialogHeader>
+          <AlertDialogHeader>Move your card to next list: </AlertDialogHeader>
           <AlertDialogCloseButton />
           <AlertDialogBody>
             <RadioGroup
               onChange={(id) => {
-                setValue("tableId", String(id));
+                setValue("listId", String(id));
               }}
             >
               <Stack direction="column">
-                {state?.map(({ id, boardName }) => (
+                {data?.attributes?.lists?.data.map(({ attributes, id }) => (
                   <Radio value={String(id)} colorScheme="teal">
                     <Text fontSize="sm" margin={"5px"} cursor={"pointer"}>
-                      {boardName}{" "}
+                      {attributes.title}{" "}
                     </Text>
                   </Radio>
                 ))}
@@ -144,18 +142,8 @@ const AlertDialogMoveList = ({
           </AlertDialogFooter>
         </AlertDialogContent>
       </form>
-      <AlertDialogMoveCard
-        isOpen={isOpenAlertMoveCard}
-        onClose={onCloseCardMoveAlert}
-        cancelRef={cancelRefAlertMoveCard}
-        tableId={String(tableId)}
-        cardMove={true}
-        cardId={cardId}
-        listIdFrom={String(listId)}
-      />
-      );
     </AlertDialog>
   );
 };
 
-export default AlertDialogMoveList;
+export default AlertDialogMoveCard;

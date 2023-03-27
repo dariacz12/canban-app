@@ -187,6 +187,8 @@ const List = ({ listId, listName }: { listId: string; listName: string }) => {
                   onClose={onClose}
                   cancelRef={cancelRef}
                   listId={String(listId)}
+                  cardMove={false}
+                  cardId={""}
                 />
               </MenuList>
             </Menu>
