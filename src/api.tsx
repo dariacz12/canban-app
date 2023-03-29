@@ -419,6 +419,31 @@ export const getCardData = async (cardId: string): Promise<CardData> => {
     })
   ).data.data;
 };
+export const moveCardtoAnotherTable = async ({
+  tableId,
+  listId,
+  cardId,
+}: {
+  tableId: string;
+  listId: string;
+  cardId: string;
+}) =>
+  axios.put(
+    `${BASE_URL}/api/cards/${cardId}`,
+    {
+      data: {
+        lists: [listId],
+        tables: [tableId],
+      },
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${
+          JSON.parse(localStorage.getItem("loginData") || "").token
+        }`,
+      },
+    }
+  );
 export const updateCardTitle = async ({
   title,
   cardId,

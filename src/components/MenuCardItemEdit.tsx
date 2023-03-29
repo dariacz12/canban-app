@@ -14,6 +14,8 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQueryClient } from "react-query";
 import { deleteCard } from "../api";
+import AlertDialogMoveList from "./AlertDialogMoveList";
+import { useDisclosure } from "@chakra-ui/react";
 
 type MenuItem = Required<MenuProps>["items"][number];
 
@@ -63,6 +65,8 @@ const MenuCardItemEdit = ({
   listId: string;
   onClose: () => void;
 }) => {
+  const { isOpen, onOpen, onClose: onCloseCard } = useDisclosure();
+  const cancelRef = React.useRef<HTMLButtonElement>(null);
   const navigate = useNavigate();
   let { tableId } = useParams();
   const queryClientCardDelete = useQueryClient();
@@ -91,7 +95,7 @@ const MenuCardItemEdit = ({
     } else if (e.key === "4") {
       navigate("/");
     } else if (e.key === "5") {
-      navigate("/");
+      onOpen();
     } else if (e.key === "7") {
       deleteCardItem();
     } else navigate(`/}`);
@@ -109,14 +113,24 @@ const MenuCardItemEdit = ({
   };
 
   return (
-    <Menu
-      onClick={onClick}
-      mode="inline"
-      openKeys={openKeys}
-      onOpenChange={onOpenChange}
-      style={{ maxWidth: "200px", paddingBottom: "20px" }}
-      items={items}
-    />
+    <>
+      <Menu
+        onClick={onClick}
+        mode="inline"
+        openKeys={openKeys}
+        onOpenChange={onOpenChange}
+        style={{ maxWidth: "200px", paddingBottom: "20px" }}
+        items={items}
+      />
+      <AlertDialogMoveList
+        isOpen={isOpen}
+        onClose={onCloseCard}
+        cancelRef={cancelRef}
+        listId={String(listId)}
+        cardMove={true}
+        cardId={String(cardId)}
+      />
+    </>
   );
 };
 
