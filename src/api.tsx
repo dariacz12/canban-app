@@ -29,17 +29,23 @@ type updateTableTitle = {
   title: string;
   tableId: string | undefined;
 };
+type updateTableStarred = {
+  starred: boolean;
+  tableId: string | undefined;
+};
 type updateTableImage = {
   imageName: string;
   tableId: string | undefined;
 };
-type TableListData = {
+type TableListData = TableDitailsData[];
+export type TableDitailsData = {
   id: number;
   attributes: {
     title: string;
     imageUrl: string;
+    starred: boolean;
   };
-}[];
+};
 
 type ListData = {
   title: string;
@@ -98,6 +104,11 @@ type CardData = {
     cover: string;
     title: string;
     description: string;
+    lists: {
+      data: {
+        id: string;
+      }[];
+    };
   };
 };
 
@@ -139,6 +150,7 @@ type ListsListData = {
   id: number;
   attributes: {
     title: string;
+    starred: boolean;
   };
 }[];
 
@@ -234,6 +246,25 @@ export const updateTableTitle = async ({ title, tableId }: updateTableTitle) =>
       },
     }
   );
+export const updateTableStarred = async ({
+  starred,
+  tableId,
+}: updateTableStarred) =>
+  axios.put(
+    `${BASE_URL}/api/tables/${tableId}`,
+    {
+      data: {
+        starred,
+      },
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${
+          JSON.parse(localStorage.getItem("loginData") || "").token
+        }`,
+      },
+    }
+  );
 export const updateTableImage = async ({
   imageName,
   tableId,
@@ -266,6 +297,17 @@ export const deleteTable = async (tableId: string) =>
 export const getTableList = async (): Promise<TableListData> => {
   return (
     await axios.get(`${BASE_URL}/api/tables`, {
+      headers: {
+        Authorization: `Bearer ${
+          JSON.parse(localStorage.getItem("loginData") || "").token
+        }`,
+      },
+    })
+  ).data.data;
+};
+export const getTable = async (id: string): Promise<TableDitailsData> => {
+  return (
+    await axios.get(`${BASE_URL}/api/tables/${id}`, {
       headers: {
         Authorization: `Bearer ${
           JSON.parse(localStorage.getItem("loginData") || "").token
@@ -456,6 +498,28 @@ export const updateCardTitle = async ({
     {
       data: {
         title,
+      },
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${
+          JSON.parse(localStorage.getItem("loginData") || "").token
+        }`,
+      },
+    }
+  );
+export const updateCardParentList = async ({
+  listId,
+  cardId,
+}: {
+  listId: string;
+  cardId: string;
+}) =>
+  axios.put(
+    `${BASE_URL}/api/cards/${cardId}`,
+    {
+      data: {
+        lists: [listId],
       },
     },
     {

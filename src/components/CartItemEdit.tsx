@@ -128,7 +128,6 @@ const CartItemEdit = ({
   );
   const description = data?.attributes?.description;
   const cover = data?.attributes?.cover;
-  console.log("cardData", data);
   const cardDescriptionWraperRef = useRef<HTMLDivElement>(null);
   const onDescriptionSaved = () => {
     resetField("description");

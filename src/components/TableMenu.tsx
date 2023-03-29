@@ -8,10 +8,18 @@ import {
 } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useQuery } from "react-query";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
-import { updateTableTitle } from "../api";
+import {
+  getTable,
+  getTableList,
+  getTableListsList,
+  updateTableTitle,
+} from "../api";
 import usePageList from "../customHooks/usePageList";
+import useMakeTableStarred from "../customHooks/useStarredTable";
+import useStarredTable from "../customHooks/useStarredTable";
 import ChangeBackgroundImage from "./ChangeBackgroundImage";
 import TableBurgerMenu from "./TableBurgerMenu";
 
@@ -23,13 +31,21 @@ const MenuItemsBoard = [
 const LeftMenu = styled.div``;
 const RightMenu = styled.div``;
 const TableMenu = () => {
-  const [activeStar, setActiveStar] = useState<Boolean>(false);
   const { setValue, register } = useForm();
   const [state] = usePageList();
 
   let { tableId } = useParams<{ tableId?: string }>();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const cancelRef = React.useRef<HTMLButtonElement>(null);
+
+  const { mutate } = useMakeTableStarred(String(tableId));
+  const { data } = useQuery(`tableDitailsData${tableId}`, () =>
+    getTable(String(tableId))
+  );
+
+  const starrtedTable = (tableId: string | undefined) => {
+    mutate({ starred: Boolean(!data?.attributes.starred), tableId });
+  };
   return (
     <>
       <div
@@ -100,10 +116,12 @@ const TableMenu = () => {
               <StarIcon
                 style={{
                   cursor: "pointer",
-                  color: activeStar ? "#53735E" : "whitesmoke",
+                  color: data?.attributes.starred ? "#53735E" : "whitesmoke",
                   position: "relative",
                 }}
-                onClick={() => setActiveStar(!activeStar)}
+                onClick={() => {
+                  starrtedTable(tableId);
+                }}
               />
             </CardBody>
           </Card>

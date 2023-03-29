@@ -72,9 +72,7 @@ const AlertDialogMoveCard = ({
     },
     onSettled: () => {
       queryClient.invalidateQueries([`cardTitle${listId}`]);
-      console.log("to", tableId);
       queryClient.invalidateQueries([`cardTitle${listIdFrom}`]);
-      console.log("from", tableFirstId);
     },
   });
   const onSubmit: SubmitHandler<Inputs> = ({ listId: id }) => {
