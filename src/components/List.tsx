@@ -23,7 +23,13 @@ import { useForm } from "react-hook-form";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
-import { deleteList, getListsListCardsTitles, updateListTitle } from "../api";
+import {
+  deleteList,
+  getCardData,
+  getListsListCardsTitles,
+  updateCardParentList,
+  updateListTitle,
+} from "../api";
 import useClickOutside from "../customHooks/useClickOutside";
 import usePageList from "../customHooks/usePageList";
 import AddCardField from "./AddCardField";
@@ -47,6 +53,40 @@ type Inputs = {
   title: string;
 };
 const List = ({ listId, listName }: { listId: string; listName: string }) => {
+  const handleOnDragCardToAnotherList = (
+    e: React.DragEvent,
+    cardId: string
+  ) => {
+    e.dataTransfer.setData("cardId", cardId);
+  };
+
+  const handleOnDropCardToAnotherList = async (e: React.DragEvent) => {
+    const draggableCardId = e.dataTransfer.getData("cardId") as string;
+    console.log("draggableCardId", draggableCardId);
+    console.log(String((await getCardData(draggableCardId)).id));
+    const firstListId = String(
+      (await getCardData(draggableCardId)).attributes.lists.data[0].id
+    );
+    await updateCardDatatMutation.mutateAsync({
+      listId: String(listId),
+      cardId: draggableCardId,
+    });
+    queryClient.invalidateQueries([`cardTitle${listId}`]);
+    queryClient.invalidateQueries([`cardTitle${firstListId}`]);
+  };
+
+  const handleDragOverCardToAnotherList = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  const queryClient = useQueryClient();
+  const updateCardDatatMutation = useMutation(updateCardParentList, {
+    onSuccess: () => {},
+    onError: () => {
+      alert("Something went wrong");
+    },
+    onSettled: () => {},
+  });
   const { isOpen, onOpen, onClose } = useDisclosure();
   const cancelRef = React.useRef<HTMLButtonElement>(null);
   const [state] = usePageList();
@@ -109,6 +149,8 @@ const List = ({ listId, listName }: { listId: string; listName: string }) => {
   return (
     <>
       <Card
+        onDrop={handleOnDropCardToAnotherList}
+        onDragOver={handleDragOverCardToAnotherList}
         minW="231px"
         h={"fit-content"}
         style={{
@@ -197,6 +239,7 @@ const List = ({ listId, listName }: { listId: string; listName: string }) => {
             {data &&
               data?.attributes?.cards?.data?.map(({ attributes, id }) => (
                 <CardItem
+                  onDragStart={handleOnDragCardToAnotherList}
                   key={id}
                   title={attributes.title}
                   cardId={String(id)}

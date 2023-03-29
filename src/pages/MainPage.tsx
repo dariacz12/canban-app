@@ -139,9 +139,10 @@ const MainPage = () => {
                         .toLowerCase()
                         .includes(searchInput.toLowerCase());
                 })
-                .map(({ id, imageName, boardName }) => (
+                .map(({ id, starred, imageName, boardName }) => (
                   <BoardElement
                     id={id}
+                    starred={starred}
                     imageName={imageName}
                     boardName={boardName}
                   />

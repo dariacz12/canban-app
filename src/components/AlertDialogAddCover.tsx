@@ -52,7 +52,6 @@ const AlertDialogAddCover = ({
     },
   });
   const onSubmit: SubmitHandler<Inputs> = ({ imageName }) => {
-    console.log(imageName);
     updateCardCoverMutation.mutate({ coverImage: imageName, cardId });
   };
 
@@ -84,7 +83,6 @@ const AlertDialogAddCover = ({
             <AddBackgroundImage
               imageName={imageName}
               onChange={(imageName) => {
-                console.log("image", imageName);
                 setValue("imageName", imageName);
               }}
             />

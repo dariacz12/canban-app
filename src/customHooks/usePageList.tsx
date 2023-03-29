@@ -4,7 +4,13 @@ import { getTableList } from "../api";
 
 const usePageList = () => {
   const [state, setState] = useState<
-    Array<{ id: number; imageName: string; boardName: string }> | undefined
+    | Array<{
+        id: number;
+        imageName: string;
+        boardName: string;
+        starred: boolean;
+      }>
+    | undefined
   >();
   const { data } = useQuery("tableList", getTableList);
 
@@ -12,6 +18,7 @@ const usePageList = () => {
     setState(
       data?.map(({ id, attributes }) => ({
         id,
+        starred: attributes.starred,
         boardName: attributes.title,
         imageName: attributes.imageUrl,
       }))

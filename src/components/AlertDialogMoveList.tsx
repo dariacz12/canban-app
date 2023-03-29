@@ -73,9 +73,7 @@ const AlertDialogMoveList = ({
     },
     onSettled: () => {
       queryClient.invalidateQueries([`tableListsList${tableId}`]);
-      console.log("to", tableId);
       queryClient.invalidateQueries([`tableListsList${tableFirstId}`]);
-      console.log("from", tableFirstId);
     },
   });
   const onSubmit: SubmitHandler<Inputs> = ({ tableId: id }) => {

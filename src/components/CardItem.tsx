@@ -15,10 +15,12 @@ const CardItem = ({
   title,
   cardId,
   listId,
+  onDragStart,
 }: {
   title: string;
   cardId: string;
   listId: string;
+  onDragStart: (e: React.DragEvent, cardId: string) => void;
 }) => {
   const { data } = useQuery(`cardData${cardId}`, () =>
     getCardData(String(cardId))
@@ -28,7 +30,12 @@ const CardItem = ({
 
   return (
     <>
-      <Card onClick={onOpen} style={{ margin: "7px 0px", display: "flex" }}>
+      <Card
+        draggable
+        onDragStart={(e) => onDragStart(e, String(cardId))}
+        onClick={onOpen}
+        style={{ margin: "7px 0px", display: "flex" }}
+      >
         <CardBody padding={"0px"}>
           {cover && (
             <Box

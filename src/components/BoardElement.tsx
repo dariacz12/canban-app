@@ -9,18 +9,26 @@ import {
 } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import useMakeTableStarred from "../customHooks/useStarredTable";
+import useStarredTable from "../customHooks/useStarredTable";
 
 const BoardElement = ({
   id,
   imageName,
   boardName,
+  starred,
 }: {
   id: number;
   imageName: string;
   boardName: string;
+  starred: boolean;
 }) => {
   const navigate = useNavigate();
-  const [activeStar, setActiveStar] = useState<Boolean>(false);
+
+  const { mutate } = useMakeTableStarred(String(id));
+  const starrtedTable = (tableId: string | undefined) => {
+    mutate({ starred: Boolean(!starred), tableId });
+  };
   return (
     <Card cursor={"pointer"} maxW="2xs" style={{ margin: "20px" }}>
       <CardBody onClick={() => navigate(`/tablepage/${id}`)} padding="15px">
@@ -40,8 +48,8 @@ const BoardElement = ({
           {boardName}
         </Heading>
         <StarIcon
-          style={{ color: activeStar ? "#53735E" : "gray" }}
-          onClick={() => setActiveStar(!activeStar)}
+          style={{ color: starred ? "#53735E" : "whitesmoke" }}
+          onClick={() => starrtedTable(String(id))}
         />
       </CardFooter>
     </Card>

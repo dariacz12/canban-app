@@ -8,7 +8,6 @@ import {
   UnorderedListOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import { getTableList } from "../api";
 import type { MenuProps } from "antd";
 import { Layout, Menu, theme } from "antd";
 import { Box, Image, useDisclosure, useQuery } from "@chakra-ui/react";
@@ -20,7 +19,12 @@ import usePageList from "../customHooks/usePageList";
 const { Sider } = Layout;
 
 type MenuItem = Required<MenuProps>["items"][number];
-
+type TableData = {
+  id: number;
+  imageName: string;
+  boardName: string;
+  starred: boolean;
+};
 function getItem(
   label: React.ReactNode,
   key: React.Key,
@@ -34,7 +38,14 @@ function getItem(
     label,
   } as MenuItem;
 }
-
+const sort = (a: TableData, b: TableData) => {
+  if (a.starred && !b.starred) {
+    return -1;
+  } else if (!a.starred && b.starred) {
+    return 1;
+  }
+  return 0;
+};
 const MenuElement: React.FC = () => {
   const [state] = usePageList();
 
@@ -50,9 +61,11 @@ const MenuElement: React.FC = () => {
       "Board List",
       "3item",
       <UnorderedListOutlined />,
-      state?.map(({ id, boardName }) =>
-        getItem(`${boardName}`, `${id}`, <SwapRightOutlined />)
-      )
+      state
+        ?.sort(sort)
+        .map(({ id, boardName }) =>
+          getItem(`${boardName}`, `${id}`, <SwapRightOutlined />)
+        )
     ),
     getItem("Settings", "4item", <SettingOutlined />),
     getItem("LogOut", "5item", <LogoutOutlined />),
