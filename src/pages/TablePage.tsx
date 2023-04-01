@@ -1,8 +1,8 @@
-import { useState } from "react";
-import { useQuery } from "react-query";
+import React, { useEffect, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
-import { getTableListsList } from "../api";
+import { getTableListsList, updateListOrder } from "../api";
 import AddListButton from "../components/AddListButton";
 import AddListField from "../components/AddListField";
 import List from "../components/List";
@@ -20,8 +20,90 @@ const TablePage = () => {
   const { data } = useQuery(`tableListsList${tableId}`, () =>
     getTableListsList(String(tableId))
   );
+
+  const handleOnDragList = (e: React.DragEvent, listId: string) => {
+    e.dataTransfer.setData("listId", listId);
+  };
+
+  const dragOverItem = React.useRef<any>(null);
+
+  const queryClient = useQueryClient();
+
+  const updateListOrderMutation = useMutation(updateListOrder, {
+    onSuccess: () => {},
+    onError: () => {
+      alert("Something went wrong!");
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries([`tableListsList${tableId}`]);
+    },
+  });
+
+  const handleOnDropList = async (e: React.DragEvent) => {
+    const draggableListId = e.dataTransfer.getData("listId") as string;
+    const originalListsOrderArray = JSON.parse(
+      String(data?.attributes.listOrder)
+    );
+    const movedListIndex = originalListsOrderArray?.indexOf(
+      Number(draggableListId)
+    );
+    const { current } = dragOverItem;
+    const targetIndex = originalListsOrderArray?.indexOf(Number(current));
+    let newListsOrderArray: string[] = [];
+    if (Number(targetIndex) > Number(movedListIndex)) {
+      newListsOrderArray =
+        originalListsOrderArray?.slice(
+          movedListIndex,
+          Number(targetIndex) + 1
+        ) ?? [];
+      newListsOrderArray?.forEach((element, index) => {
+        let element2 = newListsOrderArray[index + 1];
+        if (element2) {
+          newListsOrderArray[index + 1] = element;
+          newListsOrderArray[index] = element2;
+        }
+      });
+
+      const length = newListsOrderArray.length;
+      originalListsOrderArray?.splice(
+        Number(movedListIndex),
+        length,
+        ...newListsOrderArray
+      );
+    } else {
+      newListsOrderArray =
+        originalListsOrderArray
+          ?.slice(Number(targetIndex), Number(movedListIndex) + 1)
+          .reverse() ?? [];
+
+      newListsOrderArray?.forEach((element, index) => {
+        let element2 = newListsOrderArray[index + 1];
+        if (element2) {
+          newListsOrderArray[index + 1] = element;
+          newListsOrderArray[index] = element2;
+        }
+      });
+
+      const length = newListsOrderArray.length;
+      originalListsOrderArray?.splice(
+        Number(targetIndex),
+        length,
+        ...newListsOrderArray.reverse()
+      );
+    }
+    originalListsOrderArray &&
+      updateListOrderMutation.mutate({
+        tableId: String(tableId),
+        listOrder: originalListsOrderArray,
+      });
+  };
+
+  const handleDragOverList = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+  };
+
   return (
-    <Wrap>
+    <Wrap onDrop={handleOnDropList} onDragOver={handleDragOverList}>
       <div style={{ display: "flex" }}>
         {!activeAddList && (
           <AddListButton
@@ -36,10 +118,23 @@ const TablePage = () => {
           />
         )}
       </div>
+      {}
       {data &&
-        data?.attributes?.lists?.data.map(({ attributes, id }) => (
-          <List key={id} listId={String(id)} listName={attributes.title} />
-        ))}
+        JSON.parse(data.attributes.listOrder) !== null &&
+        JSON.parse(data.attributes.listOrder).map((list: string) =>
+          data.attributes.lists.data.map(
+            ({ attributes, id }) =>
+              String(list) === String(id) && (
+                <List
+                  dragOverItem={dragOverItem}
+                  onDragListStart={handleOnDragList}
+                  key={id}
+                  listId={String(id)}
+                  listName={attributes.title}
+                />
+              )
+          )
+        )}
     </Wrap>
   );
 };
