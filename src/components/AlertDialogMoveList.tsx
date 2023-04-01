@@ -117,7 +117,7 @@ const AlertDialogMoveList = ({
             >
               <Stack direction="column">
                 {state?.map(({ id, boardName }) => (
-                  <Radio value={String(id)} colorScheme="teal">
+                  <Radio key={id} value={String(id)} colorScheme="teal">
                     <Text fontSize="sm" margin={"5px"} cursor={"pointer"}>
                       {boardName}{" "}
                     </Text>

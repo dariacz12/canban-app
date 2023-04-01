@@ -48,8 +48,7 @@ export type TableDitailsData = {
 };
 
 type ListData = {
-  title: string;
-  table: string;
+  id: string;
 };
 type BoardListsListData = {
   id: number;
@@ -57,6 +56,7 @@ type BoardListsListData = {
     lists: {
       data: ListsListData;
     };
+    listOrder: string;
   };
 };
 type ListsListCardsTitles = {
@@ -320,23 +320,29 @@ export const getTable = async (id: string): Promise<TableDitailsData> => {
 export const createList = async ({
   title,
   table,
-}: ListData): Promise<ListData> =>
-  axios.post(
-    `${BASE_URL}/api/lists`,
-    {
-      data: {
-        title,
-        tables: [table],
+}: {
+  title: string;
+  table: string;
+}): Promise<ListData> => {
+  return (
+    await axios.post(
+      `${BASE_URL}/api/lists`,
+      {
+        data: {
+          title,
+          tables: [table],
+        },
       },
-    },
-    {
-      headers: {
-        Authorization: `Bearer ${
-          JSON.parse(localStorage.getItem("loginData") || "").token
-        }`,
-      },
-    }
-  );
+      {
+        headers: {
+          Authorization: `Bearer ${
+            JSON.parse(localStorage.getItem("loginData") || "").token
+          }`,
+        },
+      }
+    )
+  ).data.data;
+};
 export const updateListTitle = async ({
   title,
   listId,
@@ -349,6 +355,28 @@ export const updateListTitle = async ({
     {
       data: {
         title,
+      },
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${
+          JSON.parse(localStorage.getItem("loginData") || "").token
+        }`,
+      },
+    }
+  );
+export const updateListOrder = async ({
+  listOrder,
+  tableId,
+}: {
+  listOrder: string[];
+  tableId: string;
+}) =>
+  axios.put(
+    `${BASE_URL}/api/tables/${tableId}`,
+    {
+      data: {
+        listOrder: JSON.stringify(listOrder),
       },
     },
     {

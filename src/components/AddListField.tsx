@@ -1,10 +1,11 @@
-import { Button, Card, CardBody, Input, useQuery } from "@chakra-ui/react";
+import { Button, Card, CardBody, Input } from "@chakra-ui/react";
+import { m } from "framer-motion";
 import { useEffect } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
-import { createList } from "../api";
+import { createList, getTableListsList, updateListOrder } from "../api";
 
 const Footer = styled.div``;
 type Inputs = {
@@ -20,7 +21,7 @@ const AddListField = ({
   useEffect(() => {
     setFocus("title");
   }, []);
-  const queryQlient = useQueryClient();
+  const queryClient = useQueryClient();
 
   const {
     handleSubmit,
@@ -30,18 +31,41 @@ const AddListField = ({
     formState: { errors },
   } = useForm<Inputs>();
 
-  const addNewList = useMutation(createList, {
-    onSuccess: () => {
-      alert("Your list was successfully created!");
-    },
+  let { tableId } = useParams();
+
+  const updateListOrderMutation = useMutation(updateListOrder, {
+    onSuccess: () => {},
     onError: () => {
       alert("Something went wrong!");
     },
     onSettled: () => {
-      queryQlient.invalidateQueries([`tableListsList${tableId}`]);
+      queryClient.invalidateQueries([`tableListsList${tableId}`]);
     },
   });
-  let { tableId } = useParams();
+  const { data: boardData } = useQuery(`tableListsList${tableId}`, () =>
+    getTableListsList(String(tableId))
+  );
+
+  const addNewList = useMutation(createList, {
+    onSuccess: (data) => {
+      console.log("data", data);
+      let listOrder: string[] = [];
+      if (boardData?.attributes.listOrder) {
+        listOrder = JSON.parse(String(boardData?.attributes.listOrder));
+      }
+      updateListOrderMutation.mutate({
+        tableId: String(tableId),
+        listOrder: [...listOrder, data.id],
+      });
+    },
+    onError: () => {
+      alert("Something went wrong t!");
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries([`tableListsList${tableId}`]);
+    },
+  });
+
   const onSubmit: SubmitHandler<Inputs> = ({ title }) => {
     addNewList.mutate({ title, table: String(tableId) });
     resetField("title");

@@ -27,7 +27,9 @@ import {
   deleteList,
   getCardData,
   getListsListCardsTitles,
+  getTableListsList,
   updateCardParentList,
+  updateListOrder,
   updateListTitle,
 } from "../api";
 import useClickOutside from "../customHooks/useClickOutside";
@@ -52,7 +54,17 @@ const Footer = styled.div``;
 type Inputs = {
   title: string;
 };
-const List = ({ listId, listName }: { listId: string; listName: string }) => {
+const List = ({
+  listId,
+  listName,
+  onDragListStart,
+  dragOverItem,
+}: {
+  listId: string;
+  listName: string;
+  onDragListStart: (e: React.DragEvent<HTMLDivElement>, listId: string) => void;
+  dragOverItem: React.MutableRefObject<any>;
+}) => {
   const handleOnDragCardToAnotherList = (
     e: React.DragEvent,
     cardId: string
@@ -63,7 +75,6 @@ const List = ({ listId, listName }: { listId: string; listName: string }) => {
   const handleOnDropCardToAnotherList = async (e: React.DragEvent) => {
     const draggableCardId = e.dataTransfer.getData("cardId") as string;
     console.log("draggableCardId", draggableCardId);
-    console.log(String((await getCardData(draggableCardId)).id));
     const firstListId = String(
       (await getCardData(draggableCardId)).attributes.lists.data[0].id
     );
@@ -121,16 +132,34 @@ const List = ({ listId, listName }: { listId: string; listName: string }) => {
     }
   };
   const navigate = useNavigate();
-  const queryClientDelete = useQueryClient();
+
+  const { data: boardData } = useQuery(`tableListsList${tableId}`, () =>
+    getTableListsList(String(tableId))
+  );
+
+  const updateListOrderMutation = useMutation(updateListOrder, {
+    onSuccess: () => {},
+    onError: () => {
+      alert("Something went wrong!");
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries([`tableListsList${tableId}`]);
+    },
+  });
   const deleteListsListMutation = useMutation(deleteList, {
     onSuccess: () => {
-      navigate(`/tablepage/${tableId}`);
+      updateListOrderMutation.mutate({
+        tableId: String(tableId),
+        listOrder: [
+          ...JSON.parse(String(boardData?.attributes.listOrder)),
+        ].filter((list) => String(list) !== listId),
+      });
     },
     onError: () => {
       alert("Something went wrong");
     },
     onSettled: () => {
-      queryClientDelete.invalidateQueries([`tableListsList${tableId}`]);
+      queryClient.invalidateQueries([`tableListsList${tableId}`]);
     },
   });
 
@@ -149,6 +178,12 @@ const List = ({ listId, listName }: { listId: string; listName: string }) => {
   return (
     <>
       <Card
+        onDragStart={(e) => onDragListStart(e, String(listId))}
+        onDragEnter={(e) => {
+          dragOverItem.current = listId;
+          console.log("targetId", dragOverItem.current);
+        }}
+        draggable
         onDrop={handleOnDropCardToAnotherList}
         onDragOver={handleDragOverCardToAnotherList}
         minW="231px"
@@ -217,7 +252,6 @@ const List = ({ listId, listName }: { listId: string; listName: string }) => {
                 <MenuItem icon={<ArrowForwardIcon />} onClick={onOpen}>
                   Move list to another board
                 </MenuItem>
-                {/* <MenuItem icon={<CopyIcon />}>Copy list</MenuItem> */}
                 <MenuItem
                   onClick={() => deleteListsListMutation.mutate(listId)}
                   icon={<DeleteIcon />}
