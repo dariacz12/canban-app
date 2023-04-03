@@ -21,8 +21,13 @@ import { SubmitHandler, useForm, useWatch } from "react-hook-form";
 import React, { RefObject, useState } from "react";
 import AddBackgroundImage from "./AddBackgroundImage";
 
-import { useMutation, useQueryClient } from "react-query";
-import { createTable, moveList } from "../api";
+import { useMutation, useQuery, useQueryClient } from "react-query";
+import {
+  createTable,
+  getTableListsList,
+  moveList,
+  updateListOrder,
+} from "../api";
 import usePageList from "../customHooks/usePageList";
 import { SwapRightOutlined } from "@ant-design/icons";
 import { useParams } from "react-router-dom";
@@ -63,7 +68,30 @@ const AlertDialogMoveList = ({
   } = useDisclosure();
   const cancelRefAlertMoveCard = React.useRef<HTMLButtonElement>(null);
   let { tableId: tableFirstId } = useParams();
+  const tableId = watch("tableId");
+  const { data } = useQuery(`tableListsList${tableId}`, () =>
+    getTableListsList(String(tableId))
+  );
+  const { data: dataFirstTable } = useQuery(
+    `tableListsList${tableFirstId}`,
+    () => getTableListsList(String(tableFirstId))
+  );
+  const originalListsOrderArray =
+    data && JSON.parse(String(data.attributes.listOrder));
+  const originalListsOrderFirstArray =
+    dataFirstTable && JSON.parse(String(dataFirstTable.attributes.listOrder));
   const queryClient = useQueryClient();
+  const updateListOrderMutation = useMutation(updateListOrder, {
+    onSuccess: () => {},
+    onError: () => {
+      alert("Something went wrong!");
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries([`tableListsList${tableId}`]);
+      queryClient.invalidateQueries([`tableListsList${tableFirstId}`]);
+    },
+  });
+
   const moveListtoAnotherBoard = useMutation(moveList, {
     onSuccess: () => {
       onClose();
@@ -78,9 +106,18 @@ const AlertDialogMoveList = ({
   });
   const onSubmit: SubmitHandler<Inputs> = ({ tableId: id }) => {
     !cardMove ? moveListtoAnotherBoard.mutate({ tableId, listId }) : onOpen();
+    updateListOrderMutation.mutate({
+      tableId: String(tableId),
+      listOrder: [...originalListsOrderArray, listId],
+    });
+    updateListOrderMutation.mutate({
+      tableId: String(tableFirstId),
+      listOrder: originalListsOrderFirstArray.filter(
+        ({ id }: { id: string }) => String(id) === listId
+      ),
+    });
   };
 
-  const tableId = watch("tableId");
   const onCloseCardMoveAlert = () => {
     handleClick();
     onCloseCard();
