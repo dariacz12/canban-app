@@ -14,9 +14,14 @@ const Wrap = styled.div`
   overflow: auto;
   flex: 1;
 `;
+const ListWrapper = styled.div`
+  height: 100vh;
+`;
 const TablePage = () => {
   const [activeAddList, setActiveAddList] = useState<boolean>(false);
   let { tableId } = useParams();
+  const [selectedListId, setSelectedListId] = useState("");
+
   const { data } = useQuery(`tableListsList${tableId}`, () =>
     getTableListsList(String(tableId))
   );
@@ -30,7 +35,9 @@ const TablePage = () => {
   const queryClient = useQueryClient();
 
   const updateListOrderMutation = useMutation(updateListOrder, {
-    onSuccess: () => {},
+    onSuccess: () => {
+      setSelectedListId("");
+    },
     onError: () => {
       alert("Something went wrong!");
     },
@@ -126,6 +133,8 @@ const TablePage = () => {
             ({ attributes, id }) =>
               String(list) === String(id) && (
                 <List
+                  setSelectedListId={setSelectedListId}
+                  current={String(selectedListId)}
                   dragOverItem={dragOverItem}
                   onDragListStart={handleOnDragList}
                   key={id}

@@ -1,10 +1,5 @@
 import { EllipsisOutlined } from "@ant-design/icons";
-import {
-  AddIcon,
-  ArrowForwardIcon,
-  CopyIcon,
-  DeleteIcon,
-} from "@chakra-ui/icons";
+import { AddIcon, ArrowForwardIcon, DeleteIcon } from "@chakra-ui/icons";
 import {
   Button,
   Card,
@@ -36,7 +31,6 @@ import useClickOutside from "../customHooks/useClickOutside";
 import usePageList from "../customHooks/usePageList";
 import AddCardField from "./AddCardField";
 import AlertDialogMoveList from "./AlertDialogMoveList";
-import AlertDialogNewBoard from "./AlertDialogNewBoard";
 import CardItem from "./CardItem";
 
 const Main = styled.div`
@@ -54,16 +48,23 @@ const Footer = styled.div``;
 type Inputs = {
   title: string;
 };
+const ListWrapper = styled.div`
+  height: 100vh;
+`;
 const List = ({
   listId,
   listName,
   onDragListStart,
   dragOverItem,
+  current,
+  setSelectedListId,
 }: {
   listId: string;
   listName: string;
   onDragListStart: (e: React.DragEvent<HTMLDivElement>, listId: string) => void;
   dragOverItem: React.MutableRefObject<any>;
+  current: string;
+  setSelectedListId: React.Dispatch<React.SetStateAction<string>>;
 }) => {
   const handleOnDragCardToAnotherList = (
     e: React.DragEvent,
@@ -175,144 +176,152 @@ const List = ({
       queryClientUpdate.invalidateQueries([`tableListsList${tableId}`]);
     },
   });
+
   return (
     <>
-      <Card
-        onDragStart={(e) => onDragListStart(e, String(listId))}
-        onDragEnter={(e) => {
+      <ListWrapper
+        onDragStart={(e) => {
+          !e.dataTransfer.getData("cardId") &&
+            onDragListStart(e, String(listId));
+        }}
+        onDragEnter={() => {
           dragOverItem.current = listId;
-          console.log("targetId", dragOverItem.current);
+          setSelectedListId(dragOverItem.current);
         }}
         draggable
-        onDrop={handleOnDropCardToAnotherList}
-        onDragOver={handleDragOverCardToAnotherList}
-        minW="231px"
-        h={"fit-content"}
-        style={{
-          margin: "0px 20px",
-          background: "#e5e5e5",
-          height: "fit-content",
-        }}
-        shadow="2px"
       >
-        <CardBody
+        <Card
+          draggable
+          onDrop={handleOnDropCardToAnotherList}
+          onDragOver={handleDragOverCardToAnotherList}
+          minW="231px"
+          h={"fit-content"}
           style={{
-            justifyContent: "left",
-            paddingTop: 10,
-            paddingBottom: 10,
-            paddingRight: 15,
-            paddingLeft: 15,
-            cursor: "pointer",
-            display: "flex",
-            flexDirection: "column",
-            maxHeight: "90vh",
+            margin: "0px 20px",
+            background: current === listId ? "#d6d6d6" : "#e5e5e5",
+            height: "fit-content",
           }}
+          shadow="2px"
         >
-          <Main>
-            <Wrap ref={listNameInputWraperRef}>
-              <form onSubmit={handleSubmit(onSubmit)}>
-                <Input
-                  _placeholder={{
-                    fontWeight: "bold",
-                    fontSize: "sm",
-                    color: "#4c4c4c",
-                  }}
-                  onClick={() => setValue("title", listName)}
-                  focusBorderColor="#53735E"
-                  placeholder={listName}
-                  style={{ border: "none" }}
-                  {...register("title", { maxLength: 18 })}
-                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                    updateListsListMutation.mutate({
-                      title: event.target.value,
-                      listId: String(listId),
-                    });
-                  }}
-                  onKeyPress={handleKeyPress}
+          <CardBody
+            style={{
+              justifyContent: "left",
+              paddingTop: 10,
+              paddingBottom: 10,
+              paddingRight: 15,
+              paddingLeft: 15,
+              cursor: "pointer",
+              display: "flex",
+              flexDirection: "column",
+              maxHeight: "90vh",
+            }}
+          >
+            <Main>
+              <Wrap ref={listNameInputWraperRef}>
+                <form onSubmit={handleSubmit(onSubmit)}>
+                  <Input
+                    _placeholder={{
+                      fontWeight: "bold",
+                      fontSize: "sm",
+                      color: "#4c4c4c",
+                    }}
+                    onClick={() => setValue("title", listName)}
+                    focusBorderColor="#53735E"
+                    placeholder={listName}
+                    style={{ border: "none" }}
+                    {...register("title", { maxLength: 18 })}
+                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                      updateListsListMutation.mutate({
+                        title: event.target.value,
+                        listId: String(listId),
+                      });
+                    }}
+                    onKeyPress={handleKeyPress}
+                  />
+                  {errors.title?.type === "maxLength" && (
+                    <p style={{ color: "red" }} role="alert">
+                      Max Length is 18 symbols
+                    </p>
+                  )}
+                </form>
+              </Wrap>
+              <Menu>
+                <MenuButton
+                  as={IconButton}
+                  aria-label="Options"
+                  icon={
+                    <EllipsisOutlined
+                      style={{ color: "#7f7f7f", position: "relative" }}
+                    />
+                  }
+                  variant="outline"
                 />
-                {errors.title?.type === "maxLength" && (
-                  <p style={{ color: "red" }} role="alert">
-                    Max Length is 18 symbols
-                  </p>
-                )}
-              </form>
-            </Wrap>
-            <Menu>
-              <MenuButton
-                as={IconButton}
-                aria-label="Options"
-                icon={
-                  <EllipsisOutlined
+                <MenuList>
+                  <MenuItem icon={<ArrowForwardIcon />} onClick={onOpen}>
+                    Move list to another board
+                  </MenuItem>
+                  <MenuItem
+                    onClick={() => deleteListsListMutation.mutate(listId)}
+                    icon={<DeleteIcon />}
+                  >
+                    Delete list
+                  </MenuItem>
+                  <AlertDialogMoveList
+                    isOpen={isOpen}
+                    onClose={onClose}
+                    cancelRef={cancelRef}
+                    listId={String(listId)}
+                    cardMove={false}
+                    cardId={""}
+                  />
+                </MenuList>
+              </Menu>
+            </Main>
+            <Cards style={{ overflow: "scroll" }}>
+              {data &&
+                data?.attributes?.cards?.data?.map(({ attributes, id }) => (
+                  <CardItem
+                    onDragStart={handleOnDragCardToAnotherList}
+                    key={id}
+                    title={attributes.title}
+                    cardId={String(id)}
+                    listId={listId}
+                  />
+                ))}
+            </Cards>
+
+            <Footer style={{ display: "flex" }}>
+              {!activeAddCard && (
+                <Button
+                  size={"sm"}
+                  color="#F2F2F2"
+                  _hover={{ color: "black", bg: "#F2F2F2" }}
+                  ml={3}
+                  type="submit"
+                  background="rgba(204, 204, 204, 0.5"
+                  onClick={activeCard}
+                >
+                  <AddIcon
+                    w={2.5}
+                    marginRight={"10px"}
                     style={{ color: "#7f7f7f", position: "relative" }}
                   />
-                }
-                variant="outline"
-              />
-              <MenuList>
-                <MenuItem icon={<ArrowForwardIcon />} onClick={onOpen}>
-                  Move list to another board
-                </MenuItem>
-                <MenuItem
-                  onClick={() => deleteListsListMutation.mutate(listId)}
-                  icon={<DeleteIcon />}
-                >
-                  Delete list
-                </MenuItem>
-                <AlertDialogMoveList
-                  isOpen={isOpen}
-                  onClose={onClose}
-                  cancelRef={cancelRef}
-                  listId={String(listId)}
-                  cardMove={false}
-                  cardId={""}
-                />
-              </MenuList>
-            </Menu>
-          </Main>
-          <Cards style={{ overflow: "scroll" }}>
-            {data &&
-              data?.attributes?.cards?.data?.map(({ attributes, id }) => (
-                <CardItem
-                  onDragStart={handleOnDragCardToAnotherList}
-                  key={id}
-                  title={attributes.title}
-                  cardId={String(id)}
-                  listId={listId}
-                />
-              ))}
-          </Cards>
-
-          <Footer style={{ display: "flex" }}>
-            {!activeAddCard && (
-              <Button
-                size={"sm"}
-                color="#F2F2F2"
-                _hover={{ color: "black", bg: "#F2F2F2" }}
-                ml={3}
-                type="submit"
-                background="rgba(204, 204, 204, 0.5"
-                onClick={activeCard}
-              >
-                <AddIcon
-                  w={2.5}
-                  marginRight={"10px"}
-                  style={{ color: "#7f7f7f", position: "relative" }}
-                />
-                <Text
-                  as="b"
-                  fontSize="xs"
-                  style={{ color: "#7f7f7f", position: "relative" }}
-                >
-                  Add a card
-                </Text>
-              </Button>
+                  <Text
+                    as="b"
+                    fontSize="xs"
+                    style={{ color: "#7f7f7f", position: "relative" }}
+                  >
+                    Add a card
+                  </Text>
+                </Button>
+              )}
+            </Footer>
+            {activeAddCard && (
+              <AddCardField listId={String(listId)} onClick={activeCard} />
             )}
-          </Footer>
-          {activeAddCard && (
-            <AddCardField listId={String(listId)} onClick={activeCard} />
-          )}
-        </CardBody>
-      </Card>
+          </CardBody>
+        </Card>
+      </ListWrapper>
     </>
   );
 };
