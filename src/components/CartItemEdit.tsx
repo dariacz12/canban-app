@@ -24,7 +24,6 @@ import { useMutation, useQuery, useQueryClient } from "react-query";
 import {
   getCardData,
   getListsToDoListTitles,
-  getToDoListData,
   updateCardDescription,
   updateCardTitle,
 } from "../api";

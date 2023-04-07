@@ -6,30 +6,18 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogOverlay,
-  background,
   Button,
-  color,
-  FormLabel,
-  Input,
   RadioGroup,
   Radio,
   Text,
   Stack,
   useDisclosure,
 } from "@chakra-ui/react";
-import { SubmitHandler, useForm, useWatch } from "react-hook-form";
-import React, { RefObject, useState } from "react";
-import AddBackgroundImage from "./AddBackgroundImage";
-
+import { SubmitHandler, useForm } from "react-hook-form";
+import React, { RefObject } from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
-import {
-  createTable,
-  getTableListsList,
-  moveList,
-  updateListOrder,
-} from "../api";
+import { getTableListsList, moveList, updateListOrder } from "../api";
 import usePageList from "../customHooks/usePageList";
-import { SwapRightOutlined } from "@ant-design/icons";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import AlertDialogMoveCard from "./AlertDialogMoveCard";
@@ -69,13 +57,23 @@ const AlertDialogMoveList = ({
   const cancelRefAlertMoveCard = React.useRef<HTMLButtonElement>(null);
   let { tableId: tableFirstId } = useParams();
   const tableId = watch("tableId");
-  const { data } = useQuery(`tableListsList${tableId}`, () =>
-    getTableListsList(String(tableId))
+
+  const { data } = useQuery(
+    `tableListsList${tableId}`,
+    () => (tableId ? getTableListsList(String(tableId)) : null),
+    {
+      enabled: Boolean(tableId),
+    }
   );
+
   const { data: dataFirstTable } = useQuery(
     `tableListsList${tableFirstId}`,
-    () => getTableListsList(String(tableFirstId))
+    () => (tableFirstId ? getTableListsList(String(tableFirstId)) : null),
+    {
+      enabled: Boolean(tableFirstId),
+    }
   );
+
   const originalListsOrderArray =
     data && JSON.parse(String(data.attributes.listOrder));
   const originalListsOrderFirstArray =
@@ -110,10 +108,11 @@ const AlertDialogMoveList = ({
       tableId: String(tableId),
       listOrder: [...originalListsOrderArray, listId],
     });
+
     updateListOrderMutation.mutate({
       tableId: String(tableFirstId),
       listOrder: originalListsOrderFirstArray.filter(
-        ({ id }: { id: string }) => String(id) === listId
+        ({ id }: { id: string }) => String(id) !== String(listId)
       ),
     });
   };
@@ -149,7 +148,7 @@ const AlertDialogMoveList = ({
           <AlertDialogBody>
             <RadioGroup
               onChange={(id) => {
-                setValue("tableId", String(id));
+                id && setValue("tableId", String(id));
               }}
             >
               <Stack direction="column">
@@ -183,7 +182,7 @@ const AlertDialogMoveList = ({
         isOpen={isOpenAlertMoveCard}
         onClose={onCloseCardMoveAlert}
         cancelRef={cancelRefAlertMoveCard}
-        tableId={String(tableId)}
+        tableId={tableId}
         cardMove={true}
         cardId={cardId}
         listIdFrom={String(listId)}

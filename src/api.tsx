@@ -70,6 +70,7 @@ type ListsListCardsTitles = {
         };
       }[];
     };
+    cardOrder: string;
   };
 };
 type ListsToDoListTitles = {
@@ -156,7 +157,7 @@ type ListsListData = {
 
 type CardtData = {
   title: string;
-  listId: String;
+  id: string;
 };
 
 export const createAccount = async ({
@@ -448,22 +449,24 @@ export const createCard = async ({
   title: string;
   listId: string;
 }): Promise<CardtData> =>
-  axios.post(
-    `${BASE_URL}/api/cards`,
-    {
-      data: {
-        title,
-        lists: [listId],
+  (
+    await axios.post(
+      `${BASE_URL}/api/cards`,
+      {
+        data: {
+          title,
+          lists: [listId],
+        },
       },
-    },
-    {
-      headers: {
-        Authorization: `Bearer ${
-          JSON.parse(localStorage.getItem("loginData") || "").token
-        }`,
-      },
-    }
-  );
+      {
+        headers: {
+          Authorization: `Bearer ${
+            JSON.parse(localStorage.getItem("loginData") || "").token
+          }`,
+        },
+      }
+    )
+  ).data.data;
 
 export const getListsListCardsTitles = async (
   listId: string
@@ -536,6 +539,31 @@ export const updateCardTitle = async ({
       },
     }
   );
+
+export const updateCardsOrderInList = async ({
+  cardOrder,
+  listId,
+}: {
+  cardOrder: number[];
+  listId: string;
+}) =>
+  (
+    await axios.put(
+      `${BASE_URL}/api/lists/${listId}`,
+      {
+        data: {
+          cardOrder: JSON.stringify(cardOrder),
+        },
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${
+            JSON.parse(localStorage.getItem("loginData") || "").token
+          }`,
+        },
+      }
+    )
+  ).data.data;
 export const updateCardParentList = async ({
   listId,
   cardId,

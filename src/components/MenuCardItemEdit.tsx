@@ -12,8 +12,12 @@ import {
   PlusSquareIcon,
 } from "@chakra-ui/icons";
 import { useNavigate, useParams } from "react-router-dom";
-import { useMutation, useQueryClient } from "react-query";
-import { deleteCard } from "../api";
+import { useMutation, useQuery, useQueryClient } from "react-query";
+import {
+  deleteCard,
+  getListsListCardsTitles,
+  updateCardsOrderInList,
+} from "../api";
 import AlertDialogMoveList from "./AlertDialogMoveList";
 import { useDisclosure } from "@chakra-ui/react";
 
@@ -69,17 +73,36 @@ const MenuCardItemEdit = ({
   const cancelRef = React.useRef<HTMLButtonElement>(null);
   const navigate = useNavigate();
   let { tableId } = useParams();
-  const queryClientCardDelete = useQueryClient();
+  const { data: listData } = useQuery(`cardTitle${listId}`, () =>
+    getListsListCardsTitles(String(listId))
+  );
+  const queryClient = useQueryClient();
+
+  const updateCardOrderMutation = useMutation(updateCardsOrderInList, {
+    onSuccess: () => {},
+    onError: () => {
+      alert("Something went wrong!");
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries([`cardTitle${listId}`]);
+    },
+  });
   const delateCardMutation = useMutation(deleteCard, {
     onSuccess: () => {
       onClose();
       navigate(`/tablepage/${tableId}`);
+      updateCardOrderMutation.mutate({
+        listId: String(listId),
+        cardOrder: [
+          ...JSON.parse(String(listData?.attributes.cardOrder)),
+        ].filter((card) => String(card) !== cardId),
+      });
     },
     onError: () => {
       alert("Something went wrong");
     },
     onSettled: () => {
-      queryClientCardDelete.invalidateQueries([`cardTitle${listId}`]);
+      queryClient.invalidateQueries([`cardTitle${listId}`]);
     },
   });
   const deleteCardItem = () => {

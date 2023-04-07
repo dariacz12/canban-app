@@ -16,11 +16,17 @@ const CardItem = ({
   cardId,
   listId,
   onDragStart,
+  dragOverItem,
+  setSelectedCardId,
+  current,
 }: {
   title: string;
   cardId: string;
   listId: string;
+  current: string;
+  dragOverItem: React.MutableRefObject<any>;
   onDragStart: (e: React.DragEvent, cardId: string) => void;
+  setSelectedCardId: React.Dispatch<React.SetStateAction<string>>;
 }) => {
   const { data } = useQuery(`cardData${cardId}`, () =>
     getCardData(String(cardId))
@@ -33,8 +39,16 @@ const CardItem = ({
       <Card
         draggable
         onDragStart={(e) => onDragStart(e, String(cardId))}
+        onDragEnter={() => {
+          dragOverItem.current = cardId;
+          setSelectedCardId(dragOverItem.current);
+        }}
         onClick={onOpen}
-        style={{ margin: "7px 0px", display: "flex" }}
+        style={{
+          margin: "7px 0px",
+          display: "flex",
+          backgroundColor: current === cardId ? "#d6d6d6" : "white",
+        }}
       >
         <CardBody padding={"0px"}>
           {cover && (
