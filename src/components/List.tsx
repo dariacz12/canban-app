@@ -24,6 +24,7 @@ import {
   getListsListCardsTitles,
   getTableListsList,
   updateCardParentList,
+  updateCardsOrderInList,
   updateListOrder,
   updateListTitle,
 } from "../api";
@@ -49,7 +50,7 @@ type Inputs = {
   title: string;
 };
 const ListWrapper = styled.div`
-  height: 100vh;
+  height: 90vh;
 `;
 const List = ({
   listId,
@@ -66,23 +67,36 @@ const List = ({
   current: string;
   setSelectedListId: React.Dispatch<React.SetStateAction<string>>;
 }) => {
-  const handleOnDragCardToAnotherList = (
-    e: React.DragEvent,
-    cardId: string
-  ) => {
+  const handleOnDragCard = (e: React.DragEvent, cardId: string) => {
     e.dataTransfer.setData("cardId", cardId);
   };
+  const { data } = useQuery(`cardTitle${listId}`, () =>
+    getListsListCardsTitles(String(listId))
+  );
+  let cardOrder: number[] = [];
+  if (data?.attributes.cardOrder) {
+    cardOrder = JSON.parse(String(data?.attributes.cardOrder));
+  }
 
   const handleOnDropCardToAnotherList = async (e: React.DragEvent) => {
     const draggableCardId = e.dataTransfer.getData("cardId") as string;
-    console.log("draggableCardId", draggableCardId);
+
     const firstListId = String(
       (await getCardData(draggableCardId)).attributes.lists.data[0].id
     );
-    await updateCardDatatMutation.mutateAsync({
-      listId: String(listId),
-      cardId: draggableCardId,
-    });
+
+    if (listId !== firstListId) {
+      await updateCardsOrderMutation.mutateAsync({
+        listId: String(listId),
+        cardOrder: [...cardOrder, Number(draggableCardId)],
+      });
+
+      await updateCardDatatMutation.mutateAsync({
+        listId: String(listId),
+        cardId: draggableCardId,
+      });
+    }
+
     queryClient.invalidateQueries([`cardTitle${listId}`]);
     queryClient.invalidateQueries([`cardTitle${firstListId}`]);
   };
@@ -102,9 +116,7 @@ const List = ({
   const { isOpen, onOpen, onClose } = useDisclosure();
   const cancelRef = React.useRef<HTMLButtonElement>(null);
   const [state] = usePageList();
-  const { data } = useQuery(`cardTitle${listId}`, () =>
-    getListsListCardsTitles(String(listId))
-  );
+
   let { tableId } = useParams();
   const {
     register,
@@ -177,6 +189,86 @@ const List = ({
     },
   });
 
+  const handleDragOverCardInTheSameList = (
+    e: React.DragEvent<HTMLDivElement>
+  ) => {
+    e.preventDefault();
+  };
+
+  const dragOverCardItem = React.useRef<any>(null);
+  const [selectedCardId, setSelectedCardId] = useState("");
+  const updateCardsOrderMutation = useMutation(updateCardsOrderInList, {
+    onSuccess: () => {
+      setSelectedCardId("");
+    },
+    onError: () => {
+      alert("Something went wrong!");
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries([`cardTitle${listId}`]);
+    },
+  });
+  const handleOnDropCardInTheSameList = async (e: React.DragEvent) => {
+    const draggableCardId = e.dataTransfer.getData("cardId") as string;
+    const originalCardsOrderArray = JSON.parse(
+      String(data?.attributes.cardOrder)
+    );
+    const movedCardIndex = originalCardsOrderArray?.indexOf(
+      Number(draggableCardId)
+    );
+    const { current: currentCard } = dragOverCardItem;
+    const targetCardIndex = originalCardsOrderArray?.indexOf(
+      Number(currentCard)
+    );
+    let newCardsOrderArray: string[] = [];
+    if (Number(targetCardIndex) > Number(movedCardIndex)) {
+      newCardsOrderArray =
+        originalCardsOrderArray?.slice(
+          movedCardIndex,
+          Number(targetCardIndex) + 1
+        ) ?? [];
+      newCardsOrderArray?.forEach((element, index) => {
+        let element2 = newCardsOrderArray[index + 1];
+        if (element2) {
+          newCardsOrderArray[index + 1] = element;
+          newCardsOrderArray[index] = element2;
+        }
+      });
+
+      const length = newCardsOrderArray.length;
+      originalCardsOrderArray?.splice(
+        Number(movedCardIndex),
+        length,
+        ...newCardsOrderArray
+      );
+    } else {
+      newCardsOrderArray =
+        originalCardsOrderArray
+          ?.slice(Number(targetCardIndex), Number(movedCardIndex) + 1)
+          .reverse() ?? [];
+
+      newCardsOrderArray?.forEach((element, index) => {
+        let element2 = newCardsOrderArray[index + 1];
+        if (element2) {
+          newCardsOrderArray[index + 1] = element;
+          newCardsOrderArray[index] = element2;
+        }
+      });
+
+      const length = newCardsOrderArray.length;
+      originalCardsOrderArray?.splice(
+        Number(targetCardIndex),
+        length,
+        ...newCardsOrderArray.reverse()
+      );
+    }
+    originalCardsOrderArray &&
+      updateCardsOrderMutation.mutate({
+        listId: String(listId),
+        cardOrder: originalCardsOrderArray,
+      });
+  };
+
   return (
     <>
       <ListWrapper
@@ -189,6 +281,8 @@ const List = ({
           setSelectedListId(dragOverItem.current);
         }}
         draggable
+        onDragOver={handleDragOverCardInTheSameList}
+        onDrop={handleOnDropCardInTheSameList}
       >
         <Card
           draggable
@@ -279,15 +373,25 @@ const List = ({
             </Main>
             <Cards style={{ overflow: "scroll" }}>
               {data &&
-                data?.attributes?.cards?.data?.map(({ attributes, id }) => (
-                  <CardItem
-                    onDragStart={handleOnDragCardToAnotherList}
-                    key={id}
-                    title={attributes.title}
-                    cardId={String(id)}
-                    listId={listId}
-                  />
-                ))}
+                JSON.parse(data.attributes.cardOrder) !== null &&
+                JSON.parse(data.attributes.cardOrder).map(
+                  (cardOrderId: string) =>
+                    data?.attributes?.cards?.data?.map(
+                      ({ attributes, id }) =>
+                        String(cardOrderId) === String(id) && (
+                          <CardItem
+                            onDragStart={handleOnDragCard}
+                            key={id}
+                            title={attributes.title}
+                            cardId={String(id)}
+                            listId={listId}
+                            dragOverItem={dragOverCardItem}
+                            setSelectedCardId={setSelectedCardId}
+                            current={String(selectedCardId)}
+                          />
+                        )
+                    )
+                )}
             </Cards>
 
             <Footer style={{ display: "flex" }}>

@@ -11,12 +11,7 @@ import { useForm } from "react-hook-form";
 import { useQuery } from "react-query";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
-import {
-  getTable,
-  getTableList,
-  getTableListsList,
-  updateTableTitle,
-} from "../api";
+import { getTable, updateTableTitle } from "../api";
 import usePageList from "../customHooks/usePageList";
 import useMakeTableStarred from "../customHooks/useStarredTable";
 import useStarredTable from "../customHooks/useStarredTable";

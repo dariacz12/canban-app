@@ -23,9 +23,11 @@ import AddBackgroundImage from "./AddBackgroundImage";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import {
   createTable,
+  getListsListCardsTitles,
   getTableListsList,
   moveCardtoAnotherTable,
   moveList,
+  updateCardsOrderInList,
 } from "../api";
 import usePageList from "../customHooks/usePageList";
 import { SwapRightOutlined } from "@ant-design/icons";
@@ -48,7 +50,7 @@ const AlertDialogMoveCard = ({
   isOpen: boolean;
   onClose: () => void;
   cancelRef: RefObject<HTMLButtonElement>;
-  tableId: string;
+  tableId?: string;
   cardMove: boolean;
   cardId: string;
   listIdFrom: string;
@@ -63,6 +65,27 @@ const AlertDialogMoveCard = ({
   } = useForm<Inputs>();
   let { tableId: tableFirstId } = useParams();
   const queryClient = useQueryClient();
+  const listId = watch("listId");
+  const { data: listData } = useQuery(`cardTitle${listId}`, () =>
+    listId ? getListsListCardsTitles(String(listId)) : null
+  );
+  const { data: dataFirstList } = useQuery(`cardTitle${listIdFrom}`, () =>
+    listIdFrom ? getListsListCardsTitles(String(listIdFrom)) : null
+  );
+  const originalCardsOrderArray =
+    listData && JSON.parse(String(listData.attributes.cardOrder));
+  const originalCardsOrderFirstArray =
+    dataFirstList && JSON.parse(String(dataFirstList.attributes.cardOrder));
+  const updateCardOrderMutation = useMutation(updateCardsOrderInList, {
+    onSuccess: () => {},
+    onError: () => {
+      alert("Something went wrong!");
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries([`cardTitle${listId}`]);
+    },
+  });
+
   const moveCardtoAnotherBoard = useMutation(moveCardtoAnotherTable, {
     onSuccess: () => {
       onClose();
@@ -75,17 +98,32 @@ const AlertDialogMoveCard = ({
       queryClient.invalidateQueries([`cardTitle${listIdFrom}`]);
     },
   });
+
   const onSubmit: SubmitHandler<Inputs> = ({ listId: id }) => {
-    moveCardtoAnotherBoard.mutate({ tableId, listId, cardId });
+    moveCardtoAnotherBoard.mutate({ tableId: String(tableId), listId, cardId });
+    updateCardOrderMutation.mutate({
+      listId: String(listId),
+      cardOrder: [...originalCardsOrderArray, Number(cardId)],
+    });
+
+    updateCardOrderMutation.mutate({
+      listId: String(listIdFrom),
+      cardOrder: originalCardsOrderFirstArray.filter(
+        (card: string) => String(card) !== String(cardId)
+      ),
+    });
   };
 
-  const listId = watch("listId");
   const handleClick = () => {
     reset();
     onClose();
   };
-  const { data } = useQuery(`tableListsList${tableId}`, () =>
-    getTableListsList(String(tableId))
+  const { data } = useQuery(
+    `tableListsList${tableId}`,
+    () => (tableId ? getTableListsList(String(tableId)) : null),
+    {
+      enabled: Boolean(tableId),
+    }
   );
 
   return (

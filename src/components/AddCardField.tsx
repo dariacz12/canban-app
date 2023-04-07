@@ -4,7 +4,11 @@ import { useForm } from "react-hook-form";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
-import { createCard } from "../api";
+import {
+  createCard,
+  getListsListCardsTitles,
+  updateCardsOrderInList,
+} from "../api";
 
 const Footer = styled.div``;
 type Inputs = {
@@ -31,10 +35,33 @@ const AddCardField = ({
   const navigate = useNavigate();
 
   const queryQlient = useQueryClient();
+
+  const updateCardsOrderMutation = useMutation(updateCardsOrderInList, {
+    onSuccess: () => {},
+    onError: () => {
+      alert("Something went wrong!");
+    },
+    onSettled: () => {
+      queryQlient.invalidateQueries([`cardTitle${listId}`]);
+    },
+  });
+  const { data: listData } = useQuery(`cardTitle${listId}`, () =>
+    getListsListCardsTitles(String(listId))
+  );
+  console.log("cardOrder", listData);
   const addNewCard = useMutation(createCard, {
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log("data", data);
       navigate(`/tablepage/${tableId}`);
       resetField("title");
+      let cardOrder: number[] = [];
+      if (listData?.attributes.cardOrder) {
+        cardOrder = JSON.parse(String(listData?.attributes.cardOrder));
+      }
+      updateCardsOrderMutation.mutate({
+        listId: String(listId),
+        cardOrder: [...cardOrder, Number(data.id)],
+      });
     },
     onError: () => {
       alert("Something went wrong!");
