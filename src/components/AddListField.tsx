@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import { createList, getTableListsList, updateListOrder } from "../api";
+import useToastAlert from "../customHooks/useToastAlert";
 
 const Footer = styled.div``;
 type Inputs = {
@@ -32,11 +33,11 @@ const AddListField = ({
   } = useForm<Inputs>();
 
   let { tableId } = useParams();
-
+  const toast = useToastAlert();
   const updateListOrderMutation = useMutation(updateListOrder, {
     onSuccess: () => {},
     onError: () => {
-      alert("Something went wrong!");
+      toast("Something went wrong!", "danger");
     },
     onSettled: () => {
       queryClient.invalidateQueries([`tableListsList${tableId}`]);
@@ -58,7 +59,7 @@ const AddListField = ({
       });
     },
     onError: () => {
-      alert("Something went wrong t!");
+      toast("Something went wrong!", "danger");
     },
     onSettled: () => {
       queryClient.invalidateQueries([`tableListsList${tableId}`]);
@@ -92,7 +93,7 @@ const AddListField = ({
             focusBorderColor="#53735E"
             placeholder="Board Title"
             style={{ marginBottom: "10px" }}
-            {...register("title", { required: true, maxLength: 18 })}
+            {...register("title", { required: true, maxLength: 50 })}
           />
           {errors.title?.type === "required" && (
             <span style={{ color: "red" }}>This field is required!</span>

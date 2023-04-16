@@ -48,6 +48,7 @@ const CardItem = ({
           margin: "7px 0px",
           display: "flex",
           backgroundColor: current === cardId ? "#d6d6d6" : "white",
+          maxWidth: "250px",
         }}
       >
         <CardBody padding={"0px"}>

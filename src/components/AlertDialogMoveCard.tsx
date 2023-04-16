@@ -33,6 +33,7 @@ import usePageList from "../customHooks/usePageList";
 import { SwapRightOutlined } from "@ant-design/icons";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
+import useToastAlert from "../customHooks/useToastAlert";
 
 type Inputs = {
   listId: string;
@@ -72,6 +73,7 @@ const AlertDialogMoveCard = ({
   const { data: dataFirstList } = useQuery(`cardTitle${listIdFrom}`, () =>
     listIdFrom ? getListsListCardsTitles(String(listIdFrom)) : null
   );
+  const toast = useToastAlert();
   const originalCardsOrderArray =
     listData && JSON.parse(String(listData.attributes.cardOrder));
   const originalCardsOrderFirstArray =
@@ -79,7 +81,7 @@ const AlertDialogMoveCard = ({
   const updateCardOrderMutation = useMutation(updateCardsOrderInList, {
     onSuccess: () => {},
     onError: () => {
-      alert("Something went wrong!");
+      toast("Something went wrong!", "danger");
     },
     onSettled: () => {
       queryClient.invalidateQueries([`cardTitle${listId}`]);
@@ -91,7 +93,7 @@ const AlertDialogMoveCard = ({
       onClose();
     },
     onError: () => {
-      alert("Something went wrong!");
+      toast("Something went wrong!", "danger");
     },
     onSettled: () => {
       queryClient.invalidateQueries([`cardTitle${listId}`]);

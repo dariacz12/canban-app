@@ -28,6 +28,7 @@ import {
   updateCardTitle,
 } from "../api";
 import useClickOutside from "../customHooks/useClickOutside";
+import useToastAlert from "../customHooks/useToastAlert";
 const Wrap = styled.div``;
 const Main = styled.div`
   display: flex;
@@ -111,12 +112,12 @@ const CartItemEdit = ({
   };
   const onSubmitTitle = () => onTitleSaved();
   useClickOutside(cardTitleInputWraperRef, onTitleSaved);
-
+  const toast = useToastAlert();
   const queryClientTitleUpdate = useQueryClient();
   const updateCardTitleMutation = useMutation(updateCardTitle, {
     onSuccess: () => {},
     onError: () => {
-      alert("Something went wrong");
+      toast("Something went wrong");
     },
     onSettled: () => {
       queryClientTitleUpdate.invalidateQueries([`cardTitle${listId}`]);
@@ -138,7 +139,7 @@ const CartItemEdit = ({
   const updateCardDescriptionMutation = useMutation(updateCardDescription, {
     onSuccess: () => {},
     onError: () => {
-      alert("Something went wrong");
+      toast("Something went wrong");
     },
     onSettled: () => {
       queryClientDescriptionUpdate.invalidateQueries([`cardData${cardId}`]);

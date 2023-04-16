@@ -25,6 +25,7 @@ import { useMutation, useQueryClient } from "react-query";
 import { createAccount, loginUser } from "../api";
 import { useNavigate } from "react-router-dom";
 import { LoginContext } from "../contexts/LoginContext";
+import useToastAlert from "../customHooks/useToastAlert";
 
 const MainContainer = styled.div`
   display: flex;
@@ -55,24 +56,24 @@ export default function RegisterPage() {
     formState: { errors },
   } = useForm<FormData>();
   const queryClient = useQueryClient();
-
+  const toast = useToastAlert();
   const createNewAccount = useMutation(createAccount, {
     onSuccess: () => {
-      alert("Success registretion!");
+      toast("Success registretion!");
     },
     onError: () => {
-      alert("Something went wrong!");
+      toast("Something went wrong", "danger");
     },
   });
 
   const loginNewUser = useMutation(loginUser, {
     onSuccess: (res) => {
       setData({ token: res.data.jwt, refreshToken: "" });
-      alert("Success login!");
+      toast("Success login!");
       navigate("/dashboard", { replace: true });
     },
     onError: () => {
-      alert("Something went wrong!");
+      toast("Something went wrong!", "danger");
     },
   });
   const { setData } = useContext(LoginContext);

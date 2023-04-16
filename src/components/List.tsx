@@ -11,6 +11,7 @@ import {
   MenuItem,
   MenuList,
   Text,
+  Textarea,
   useDisclosure,
 } from "@chakra-ui/react";
 import React, { useRef, useState } from "react";
@@ -30,6 +31,7 @@ import {
 } from "../api";
 import useClickOutside from "../customHooks/useClickOutside";
 import usePageList from "../customHooks/usePageList";
+import useToastAlert from "../customHooks/useToastAlert";
 import AddCardField from "./AddCardField";
 import AlertDialogMoveList from "./AlertDialogMoveList";
 import CardItem from "./CardItem";
@@ -73,27 +75,50 @@ const List = ({
   const { data } = useQuery(`cardTitle${listId}`, () =>
     getListsListCardsTitles(String(listId))
   );
+
   let cardOrder: number[] = [];
   if (data?.attributes.cardOrder) {
     cardOrder = JSON.parse(String(data?.attributes.cardOrder));
   }
-
+  const updateCardsOrderMutationInFirstList = useMutation(
+    updateCardsOrderInList,
+    {
+      onSuccess: () => {
+        setSelectedCardId("");
+      },
+      onError: () => {
+        toast("Something went wrong!", "danger");
+      },
+      onSettled: () => {},
+    }
+  );
   const handleOnDropCardToAnotherList = async (e: React.DragEvent) => {
     const draggableCardId = e.dataTransfer.getData("cardId") as string;
 
     const firstListId = String(
       (await getCardData(draggableCardId)).attributes.lists.data[0].id
     );
+    const {
+      attributes: { cardOrder: cardOrderFirst },
+    } = await getListsListCardsTitles(String(firstListId));
+
+    const cardOrderFirstList = JSON.parse(String(cardOrderFirst));
 
     if (listId !== firstListId) {
       await updateCardsOrderMutation.mutateAsync({
         listId: String(listId),
         cardOrder: [...cardOrder, Number(draggableCardId)],
       });
-
       await updateCardDatatMutation.mutateAsync({
         listId: String(listId),
         cardId: draggableCardId,
+      });
+
+      await updateCardsOrderMutationInFirstList.mutateAsync({
+        listId: String(firstListId),
+        cardOrder: cardOrderFirstList.filter(
+          (cardId: String) => String(cardId) !== draggableCardId
+        ),
       });
     }
 
@@ -104,12 +129,12 @@ const List = ({
   const handleDragOverCardToAnotherList = (e: React.DragEvent) => {
     e.preventDefault();
   };
-
+  const toast = useToastAlert();
   const queryClient = useQueryClient();
   const updateCardDatatMutation = useMutation(updateCardParentList, {
     onSuccess: () => {},
     onError: () => {
-      alert("Something went wrong");
+      toast("Something went wrong");
     },
     onSettled: () => {},
   });
@@ -153,7 +178,7 @@ const List = ({
   const updateListOrderMutation = useMutation(updateListOrder, {
     onSuccess: () => {},
     onError: () => {
-      alert("Something went wrong!");
+      toast("Something went wrong!", "danger");
     },
     onSettled: () => {
       queryClient.invalidateQueries([`tableListsList${tableId}`]);
@@ -169,7 +194,7 @@ const List = ({
       });
     },
     onError: () => {
-      alert("Something went wrong");
+      toast("Something went wrong");
     },
     onSettled: () => {
       queryClient.invalidateQueries([`tableListsList${tableId}`]);
@@ -182,7 +207,7 @@ const List = ({
       navigate(`/tablepage/${tableId}`);
     },
     onError: () => {
-      alert("Something went wrong");
+      toast("Something went wrong");
     },
     onSettled: () => {
       queryClientUpdate.invalidateQueries([`tableListsList${tableId}`]);
@@ -202,12 +227,13 @@ const List = ({
       setSelectedCardId("");
     },
     onError: () => {
-      alert("Something went wrong!");
+      toast("Something went wrong!", "danger");
     },
     onSettled: () => {
       queryClient.invalidateQueries([`cardTitle${listId}`]);
     },
   });
+
   const handleOnDropCardInTheSameList = async (e: React.DragEvent) => {
     const draggableCardId = e.dataTransfer.getData("cardId") as string;
     const originalCardsOrderArray = JSON.parse(
@@ -313,18 +339,23 @@ const List = ({
             <Main>
               <Wrap ref={listNameInputWraperRef}>
                 <form onSubmit={handleSubmit(onSubmit)}>
-                  <Input
+                  <Textarea
+                    rows={2}
                     _placeholder={{
                       fontWeight: "bold",
                       fontSize: "sm",
                       color: "#4c4c4c",
+                      wordWrap: "break-word",
+                      wordBreak: "break-all",
                     }}
                     onClick={() => setValue("title", listName)}
                     focusBorderColor="#53735E"
                     placeholder={listName}
                     style={{ border: "none" }}
                     {...register("title", { maxLength: 18 })}
-                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                    onChange={(
+                      event: React.ChangeEvent<HTMLTextAreaElement>
+                    ) => {
                       updateListsListMutation.mutate({
                         title: event.target.value,
                         listId: String(listId),

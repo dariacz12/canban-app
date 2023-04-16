@@ -16,6 +16,7 @@ import AddBackgroundImage from "./AddBackgroundImage";
 
 import { useMutation, useQueryClient } from "react-query";
 import { createTable } from "../api";
+import useToastAlert from "../customHooks/useToastAlert";
 
 type Inputs = {
   title: string;
@@ -38,22 +39,24 @@ const AlertDialogNewBoard = ({
     reset,
     formState: { errors },
   } = useForm<Inputs>();
-
+  const toast = useToastAlert();
   const queryClient = useQueryClient();
   const addNewTable = useMutation(createTable, {
     onSuccess: () => {
-      alert("Your board was successfully created!");
+      toast("Your board was successfully created!");
       onClose();
     },
     onError: () => {
-      alert("Something went wrong!");
+      toast("Something went wrong!", "danger");
     },
     onSettled: () => {
       queryClient.invalidateQueries(["tableList"]);
     },
   });
   const onSubmit: SubmitHandler<Inputs> = ({ title, imageName }) => {
-    addNewTable.mutate({ title, imageName });
+    imageName
+      ? addNewTable.mutate({ title, imageName })
+      : toast("Choose Background Image :)", "danger");
   };
 
   const imageName = watch("imageName");

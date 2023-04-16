@@ -29,7 +29,7 @@ const DashboardLayout = () => {
     token: { colorBgContainer },
   } = theme.useToken();
 
-  const { data, isLoading, isError } = useQuery("userData", getUserData);
+  const { data } = useQuery("userData", getUserData);
   const location = useLocation();
   return (
     <ConfigProvider
@@ -134,9 +134,7 @@ const DashboardLayout = () => {
           </Header>
           <MainLayout />
           {location.pathname === "/dashboard" && (
-            <Footer style={{ textAlign: "center" }}>
-              Ant Design ©2023 Created by Ant UED
-            </Footer>
+            <Footer style={{ textAlign: "center" }}>Tasker Design ©2023</Footer>
           )}
         </Layout>
       </Layout>

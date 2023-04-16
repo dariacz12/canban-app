@@ -17,6 +17,7 @@ import { useMutation } from "react-query";
 import { createTable } from "../api";
 import Dropzone from "./Dropzone";
 import styled from "styled-components";
+import useToastAlert from "../customHooks/useToastAlert";
 
 const Wraper = styled.div``;
 type Inputs = {
@@ -40,14 +41,14 @@ const AlertDialogAddAttachment = ({
     reset,
     formState: { errors },
   } = useForm<Inputs>();
-
+  const toast = useToastAlert();
   const addNewTable = useMutation(createTable, {
     onSuccess: () => {
-      alert("Your board was successfully created!");
+      toast("Your board was successfully created!");
       onClose();
     },
     onError: () => {
-      alert("Something went wrong!");
+      toast("Something went wrong!", "danger");
     },
   });
   const onSubmit: SubmitHandler<Inputs> = ({ title, imageName }) => {

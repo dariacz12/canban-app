@@ -14,6 +14,7 @@ import AddBackgroundImage from "./AddBackgroundImage";
 
 import { useMutation, useQueryClient } from "react-query";
 import { createTable, updateCardCover } from "../api";
+import useToastAlert from "../customHooks/useToastAlert";
 
 type Inputs = {
   imageName: string;
@@ -38,14 +39,14 @@ const AlertDialogAddCover = ({
     register,
     formState: { errors },
   } = useForm<Inputs>();
-
+  const toast = useToastAlert();
   const queryClientCardCoverUpdate = useQueryClient();
   const updateCardCoverMutation = useMutation(updateCardCover, {
     onSuccess: () => {
       onClose();
     },
     onError: () => {
-      alert("Something went wrong");
+      toast("Something went wrong!", "danger");
     },
     onSettled: () => {
       queryClientCardCoverUpdate.invalidateQueries([`cardData${cardId}`]);

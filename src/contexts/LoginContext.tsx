@@ -18,12 +18,12 @@ export const LoginContext = createContext<LoginContextType>({
 });
 export const LoginContextProvider = ({ children }: { children: ReactNode }) => {
   const [data, setData] = useState<LoginDataType>(
-    JSON.parse(localStorage.getItem("loginData") || "").token === ""
+    JSON.parse(localStorage.getItem("loginData") || "{}").token === ""
       ? {
           token: "",
           refreshToken: "",
         }
-      : JSON.parse(localStorage.getItem("loginData") || "")
+      : JSON.parse(localStorage.getItem("loginData") || "{}")
   );
 
   useEffect(() => {

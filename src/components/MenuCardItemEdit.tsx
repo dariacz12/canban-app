@@ -20,6 +20,7 @@ import {
 } from "../api";
 import AlertDialogMoveList from "./AlertDialogMoveList";
 import { useDisclosure } from "@chakra-ui/react";
+import useToastAlert from "../customHooks/useToastAlert";
 
 type MenuItem = Required<MenuProps>["items"][number];
 
@@ -77,11 +78,11 @@ const MenuCardItemEdit = ({
     getListsListCardsTitles(String(listId))
   );
   const queryClient = useQueryClient();
-
+  const toast = useToastAlert();
   const updateCardOrderMutation = useMutation(updateCardsOrderInList, {
     onSuccess: () => {},
     onError: () => {
-      alert("Something went wrong!");
+      toast("Something went wrong!", "danger");
     },
     onSettled: () => {
       queryClient.invalidateQueries([`cardTitle${listId}`]);
@@ -99,7 +100,7 @@ const MenuCardItemEdit = ({
       });
     },
     onError: () => {
-      alert("Something went wrong");
+      toast("Something went wrong");
     },
     onSettled: () => {
       queryClient.invalidateQueries([`cardTitle${listId}`]);

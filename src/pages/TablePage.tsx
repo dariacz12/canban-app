@@ -6,6 +6,7 @@ import { getTableListsList, updateListOrder } from "../api";
 import AddListButton from "../components/AddListButton";
 import AddListField from "../components/AddListField";
 import List from "../components/List";
+import useToastAlert from "../customHooks/useToastAlert";
 
 const Wrap = styled.div`
   display: flex;
@@ -29,7 +30,7 @@ const TablePage = () => {
   const handleOnDragList = (e: React.DragEvent, listId: string) => {
     e.dataTransfer.setData("listId", listId);
   };
-
+  const toast = useToastAlert();
   const dragOverItem = React.useRef<any>(null);
 
   const queryClient = useQueryClient();
@@ -39,7 +40,7 @@ const TablePage = () => {
       setSelectedListId("");
     },
     onError: () => {
-      alert("Something went wrong!");
+      toast("Something went wrong!", "danger");
     },
     onSettled: () => {
       queryClient.invalidateQueries([`tableListsList${tableId}`]);

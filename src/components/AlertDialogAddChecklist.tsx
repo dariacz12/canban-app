@@ -20,6 +20,7 @@ import {
   getListsToDoListTitles,
   getToDoListData,
 } from "../api";
+import useToastAlert from "../customHooks/useToastAlert";
 
 type Inputs = {
   toDoTitle: string;
@@ -47,14 +48,14 @@ const AlertDialogAddCheckList = ({
     addNewToDoList.mutate({ toDoTitle, cardId });
     resetField("toDoTitle");
   };
-
+  const toast = useToastAlert();
   const queryClientDescriptionUpdate = useQueryClient();
   const addNewToDoList = useMutation(createToDoList, {
     onSuccess: () => {
       onClose();
     },
     onError: () => {
-      alert("Something went wrong!");
+      toast("Something went wrong!", "danger");
     },
     onSettled: () => {
       queryClientDescriptionUpdate.invalidateQueries([
