@@ -26,7 +26,7 @@ const MenuItem = styled.div`
 `;
 
 const MenuItems = [
-  { name: "User", icon: <UserOutlined />, id: "1item" },
+  { name: "Dashboard", icon: <UserOutlined />, id: "1item" },
   { name: "New Board", icon: <AppstoreAddOutlined />, id: "2item" },
   { name: "Board List", icon: <UnorderedListOutlined />, id: "3item" },
   { name: "Settings", icon: <SettingOutlined />, id: "4item" },
@@ -83,7 +83,7 @@ const BurgerMenu = () => {
                       });
                       navigate("/login");
                     } else if (id === "1item") {
-                      navigate("/settings");
+                      navigate("/dashboard");
                     } else if (id === "2item") {
                       onToggle();
                       onOpen();

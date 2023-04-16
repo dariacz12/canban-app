@@ -23,6 +23,7 @@ import { QueryClient, useMutation, useQueryClient } from "react-query";
 import { loginUser } from "../api";
 import { LoginContext } from "../contexts/LoginContext";
 import { redirect, useNavigate } from "react-router-dom";
+import useToastAlert from "../customHooks/useToastAlert";
 
 const MainContainer = styled.div`
   display: flex;
@@ -54,21 +55,18 @@ export default function LoginPage() {
   } = useForm<FormData>();
 
   const navigate = useNavigate();
-
-  // const queryClient = useQueryClient()
+  const toast = useToastAlert();
 
   const loginNewUser = useMutation(loginUser, {
     onSuccess: (res) => {
       setData({ token: res.data.jwt, refreshToken: "" });
-      alert("Success login!");
+      toast("Success login!");
       navigate("/dashboard", { replace: true });
     },
     onError: () => {
-      alert("Something went wrong!");
+      toast("Something went wrong!", "danger");
     },
-    onSettled: () => {
-      // queryClient.invalidateQueries(['userData'])
-    },
+    onSettled: () => {},
   });
   const { setData } = useContext(LoginContext);
 
@@ -152,6 +150,16 @@ export default function LoginPage() {
                     </InputGroup>
                     {errors.password && <span>This field is required</span>}
                   </Field>
+
+                  <Link
+                    padding={"5px 15px 10px 15px"}
+                    color="teal.500"
+                    href="/resetforgotpassword"
+                  >
+                    {" "}
+                    Forgot your password?
+                  </Link>
+
                   <Button m={3} type="submit" colorScheme="brand">
                     Login
                   </Button>

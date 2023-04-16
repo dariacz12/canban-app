@@ -17,7 +17,7 @@ import { RefObject } from "react";
 import AddBackgroundImage from "./AddBackgroundImage";
 import { QueryClient, useMutation, useQueryClient } from "react-query";
 import { updateTableImage } from "../api";
-
+import useToastAlert from "../customHooks/useToastAlert";
 type Inputs = {
   imageName: string;
 };
@@ -39,13 +39,14 @@ const ChangeBackgroundImage = ({
     watch,
     formState: { errors },
   } = useForm<Inputs>();
+  const toast = useToastAlert();
   const queryClient = useQueryClient();
   const updateBackgroundImageTable = useMutation(updateTableImage, {
     onSuccess: () => {
       onClose();
     },
     onError: () => {
-      alert("Something went wrong!");
+      toast("Something went wrong!", "danger");
     },
     onSettled: () => {
       queryClient.invalidateQueries(["tableList"]);

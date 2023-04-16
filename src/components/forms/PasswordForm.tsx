@@ -10,16 +10,56 @@ import {
 import { FormData } from "../../pages/RegisterPage";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
+import { useMutation, useQueryClient } from "react-query";
+import { updateUserPassword } from "../../api";
+import useToastAlert from "../../customHooks/useToastAlert";
+type PasswordForm = {
+  password: string;
+  currentPassword: string;
+  passwordConfirmation: string;
+};
 
 const PasswordForm = () => {
   const [show, setShow] = useState<Boolean>();
   const handleClick = () => setShow(!show);
   const {
     register,
+    handleSubmit,
+    resetField,
     formState: { errors },
-  } = useForm<FormData>();
+  } = useForm<PasswordForm>();
+
+  const toast = useToastAlert();
+
+  const updateUserEmailMutation = useMutation(updateUserPassword, {
+    onSuccess: (data) => {
+      if (data.status === 200) {
+        toast(`Your password is successfully changed`);
+      }
+    },
+    onError: () => {
+      toast("Something went wrong", "danger");
+    },
+    onSettled: () => {},
+  });
+
+  const onSubmit = ({
+    password,
+    currentPassword,
+    passwordConfirmation,
+  }: PasswordForm) => {
+    updateUserEmailMutation.mutate({
+      password,
+      currentPassword,
+      passwordConfirmation,
+    });
+    resetField("password");
+    resetField("currentPassword");
+    resetField("passwordConfirmation");
+  };
+
   return (
-    <form>
+    <form onSubmit={handleSubmit(onSubmit)}>
       <Box>
         <Text pt="2" as="b" fontSize="md" color={"gray.700"}>
           Change your password
@@ -32,7 +72,7 @@ const PasswordForm = () => {
             pr="4.5rem"
             type={show ? "text" : "password"}
             placeholder="Enter current password"
-            {...register("password", { required: true })}
+            {...register("currentPassword", { required: true })}
           />
 
           <InputRightElement width="4.5rem">
@@ -66,7 +106,7 @@ const PasswordForm = () => {
             pr="4.5rem"
             type={show ? "text" : "password"}
             placeholder="Repeat new password"
-            {...register("password", { required: true })}
+            {...register("passwordConfirmation", { required: true })}
           />
 
           <InputRightElement width="4.5rem">

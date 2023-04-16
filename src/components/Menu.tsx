@@ -55,7 +55,7 @@ const MenuElement: React.FC = () => {
   const navigate = useNavigate();
   const { setData } = useContext(LoginContext);
   const items: MenuItem[] = [
-    getItem("User", "1item", <UserOutlined />),
+    getItem("Dashboard", "1item", <UserOutlined />),
     getItem("New Board", "2item", <AppstoreAddOutlined />),
     getItem(
       "Board List",
@@ -83,7 +83,7 @@ const MenuElement: React.FC = () => {
       });
       navigate("/login");
     } else if (e.key === "1item") {
-      navigate("/settings");
+      navigate("/dashboard");
     } else if (e.key === "2item") {
       onOpen();
     } else if (e.key === "4item") {

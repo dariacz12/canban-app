@@ -20,6 +20,7 @@ type UserPersonalData = {
   email: string;
   username: string;
   image: string;
+  id: number | undefined;
 };
 type TableData = {
   title: string;
@@ -94,6 +95,7 @@ type ListsCheckboxes = {
         id: number;
         attributes: {
           checkboxTitle: string;
+          checked: boolean;
         };
       }[];
     };
@@ -199,6 +201,40 @@ export const loginUser = async ({
     }
   );
 
+export const resetPasswordSendEmail = async ({ email }: { email: string }) =>
+  axios.post(
+    `${BASE_URL}/api/auth/forgot-password`,
+    {
+      email,
+    },
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+export const resetPassword = async ({
+  password,
+  passwordConfirmation,
+  code,
+}: {
+  password: string;
+  passwordConfirmation: string;
+  code: string | undefined;
+}) =>
+  axios.post(
+    `${BASE_URL}/api/auth/reset-password`,
+    {
+      password,
+      passwordConfirmation,
+      code,
+    },
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
 export const getUserData = async (): Promise<UserPersonalData> => {
   return (
     await axios.get(`${BASE_URL}/api/users/me`, {
@@ -210,6 +246,58 @@ export const getUserData = async (): Promise<UserPersonalData> => {
     })
   ).data;
 };
+export const updateUserName = async ({ username }: { username: string }) =>
+  axios.put(
+    `${BASE_URL}/api/user/me`,
+    {
+      username,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${
+          JSON.parse(localStorage.getItem("loginData") || "").token
+        }`,
+      },
+    }
+  );
+export const updateUserEmail = async ({ email }: { email: string }) =>
+  axios.put(
+    `${BASE_URL}/api/user/me`,
+    {
+      email,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${
+          JSON.parse(localStorage.getItem("loginData") || "").token
+        }`,
+      },
+    }
+  );
+export const updateUserPassword = async ({
+  password,
+  currentPassword,
+  passwordConfirmation,
+}: {
+  password: string;
+  currentPassword: string;
+  passwordConfirmation: string;
+}) =>
+  axios.post(
+    `${BASE_URL}/api/auth/change-password`,
+    {
+      password,
+      currentPassword,
+      passwordConfirmation,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${
+          JSON.parse(localStorage.getItem("loginData") || "").token
+        }`,
+      },
+    }
+  );
 export const createTable = async ({
   title,
   imageName,
@@ -735,6 +823,28 @@ export const updateCheckboxTitle = async ({
     {
       data: {
         checkboxTitle,
+      },
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${
+          JSON.parse(localStorage.getItem("loginData") || "").token
+        }`,
+      },
+    }
+  );
+export const updateCheckboxCheckedStatus = async ({
+  checked,
+  checkboxId,
+}: {
+  checked: boolean;
+  checkboxId: string;
+}) =>
+  axios.put(
+    `${BASE_URL}/api/checkboxes/${checkboxId}`,
+    {
+      data: {
+        checked,
       },
     },
     {

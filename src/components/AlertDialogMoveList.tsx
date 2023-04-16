@@ -21,6 +21,7 @@ import usePageList from "../customHooks/usePageList";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import AlertDialogMoveCard from "./AlertDialogMoveCard";
+import useToastAlert from "../customHooks/useToastAlert";
 
 type Inputs = {
   tableId: string;
@@ -73,7 +74,7 @@ const AlertDialogMoveList = ({
       enabled: Boolean(tableFirstId),
     }
   );
-
+  const toast = useToastAlert();
   const originalListsOrderArray =
     data && JSON.parse(String(data.attributes.listOrder));
   const originalListsOrderFirstArray =
@@ -82,7 +83,7 @@ const AlertDialogMoveList = ({
   const updateListOrderMutation = useMutation(updateListOrder, {
     onSuccess: () => {},
     onError: () => {
-      alert("Something went wrong!");
+      toast("Something went wrong!", "danger");
     },
     onSettled: () => {
       queryClient.invalidateQueries([`tableListsList${tableId}`]);
@@ -95,7 +96,7 @@ const AlertDialogMoveList = ({
       onClose();
     },
     onError: () => {
-      alert("Something went wrong!");
+      toast("Something went wrong!", "danger");
     },
     onSettled: () => {
       queryClient.invalidateQueries([`tableListsList${tableId}`]);
@@ -143,7 +144,7 @@ const AlertDialogMoveList = ({
           maxW={"500px"}
           height={"400px"}
         >
-          <AlertDialogHeader>Move your list to: </AlertDialogHeader>
+          <AlertDialogHeader>Choose new board: </AlertDialogHeader>
           <AlertDialogCloseButton />
           <AlertDialogBody>
             <RadioGroup

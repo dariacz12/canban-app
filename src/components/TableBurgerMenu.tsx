@@ -5,6 +5,7 @@ import { QueryClient, useMutation, useQueryClient } from "react-query";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { deleteTable } from "../api";
+import useToastAlert from "../customHooks/useToastAlert";
 
 const Wrap = styled.div``;
 const TableBurgerMenu = ({
@@ -14,6 +15,7 @@ const TableBurgerMenu = ({
   onClickChangeImage: () => void;
   tableId: string;
 }) => {
+  const toast = useToastAlert();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const deleteTableMutation = useMutation(deleteTable, {
@@ -21,7 +23,7 @@ const TableBurgerMenu = ({
       navigate("/dashboard");
     },
     onError: () => {
-      alert("Something went wrong");
+      toast("Something went wrong");
     },
     onSettled: () => {
       queryClient.invalidateQueries(["tableList"]);

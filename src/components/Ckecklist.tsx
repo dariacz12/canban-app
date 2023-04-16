@@ -1,6 +1,12 @@
 import { CloseIcon } from "@chakra-ui/icons";
-import { Button, Checkbox, Input } from "@chakra-ui/react";
-import React, { useRef, useState } from "react";
+import {
+  Button,
+  Checkbox,
+  extendTheme,
+  Input,
+  Textarea,
+} from "@chakra-ui/react";
+import React, { useEffect, useRef, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import styled from "styled-components";
@@ -9,10 +15,12 @@ import {
   deleteCheckbox,
   deleteToDoList,
   getListsCheckboxes,
+  updateCheckboxCheckedStatus,
   updateCheckboxTitle,
   updateToDoListTitle,
 } from "../api";
 import useClickOutside from "../customHooks/useClickOutside";
+import useToastAlert from "../customHooks/useToastAlert";
 
 type Inputs = {
   title: string;
@@ -74,25 +82,36 @@ const Ckecklist = ({
   const onTitleSaved = () => {
     resetField("title");
   };
+  const toast = useToastAlert();
   const onSubmitTitle = () => onTitleSaved();
   useClickOutside(toDoTitleInputWraperRef, onTitleSaved);
-  const queryClientToDoListTitleUpdate = useQueryClient();
+  const queryClient = useQueryClient();
   const updateToDoListTitleMutation = useMutation(updateToDoListTitle, {
     onSuccess: () => {},
     onError: () => {
-      alert("Something went wrong!");
+      toast("Something went wrong!", "danger");
     },
     onSettled: () => {
-      queryClientToDoListTitleUpdate.invalidateQueries([
-        `ListsToDoListTitles${cardId}`,
-      ]);
+      queryClient.invalidateQueries([`ListsToDoListTitles${cardId}`]);
     },
   });
+  const updateCheckedBoxStatusMutation = useMutation(
+    updateCheckboxCheckedStatus,
+    {
+      onSuccess: () => {},
+      onError: () => {
+        toast("Something went wrong!", "danger");
+      },
+      onSettled: () => {
+        queryClient.invalidateQueries([`Checkboxes${toDoTitleId}`]);
+      },
+    }
+  );
   const queryClientToDoListTitleDelete = useQueryClient();
   const deleteToDoListTitleMutation = useMutation(deleteToDoList, {
     onSuccess: () => {},
     onError: () => {
-      alert("Something went wrong!");
+      toast("Something went wrong!", "danger");
     },
     onSettled: () => {
       queryClientToDoListTitleDelete.invalidateQueries([
@@ -110,7 +129,7 @@ const Ckecklist = ({
   const addCheckboxMutation = useMutation(createCheckbox, {
     onSuccess: () => {},
     onError: () => {
-      alert("Something went wrong!");
+      toast("Something went wrong!", "danger");
     },
     onSettled: () => {
       queryClientAddCheckbox.invalidateQueries([`Checkboxes${toDoTitleId}`]);
@@ -128,7 +147,7 @@ const Ckecklist = ({
   const deleteCheckboxMutation = useMutation(deleteCheckbox, {
     onSuccess: () => {},
     onError: () => {
-      alert("Something went wrong!");
+      toast("Something went wrong!", "danger");
     },
     onSettled: () => {
       queryClientCheckboxDelete.invalidateQueries([`Checkboxes${toDoTitleId}`]);
@@ -138,7 +157,7 @@ const Ckecklist = ({
   const updateCheckboxMutation = useMutation(updateCheckboxTitle, {
     onSuccess: () => {},
     onError: () => {
-      alert("Something went wrong!");
+      toast("Something went wrong!", "danger");
     },
     onSettled: () => {
       queryClientCheckboxUpdate.invalidateQueries([`Checkboxes${toDoTitleId}`]);
@@ -198,8 +217,8 @@ const Ckecklist = ({
               <CheckboxGroup
                 style={{
                   display: "flex",
-                  justifyContent: "flex-start",
-                  alignItems: "center",
+                  justifyContent: "center",
+                  alignItems: "flex-start",
                   paddingRight: "10px",
                 }}
                 onMouseOver={() =>
@@ -208,12 +227,21 @@ const Ckecklist = ({
                 onMouseLeave={() => setCloseButtonActive(undefined)}
               >
                 <Checkbox
-                  wordBreak={"break-word"}
+                  key={checkboxId}
                   colorScheme="gray"
+                  isChecked={attributes.checked}
                   maxWidth={"450px"}
                   display={"flex"}
+                  paddingTop={"12px"}
+                  onChange={(e) => {
+                    updateCheckedBoxStatusMutation.mutate({
+                      checked: e.target.checked,
+                      checkboxId: String(checkboxId),
+                    });
+                  }}
                 ></Checkbox>
-                <Input
+                <Textarea
+                  rows={2}
                   border={"none"}
                   onChange={(e) =>
                     updateCheckboxMutation.mutate({
@@ -221,6 +249,10 @@ const Ckecklist = ({
                       checkboxId: String(checkboxId),
                     })
                   }
+                  style={{
+                    wordBreak: "break-all",
+                    wordWrap: "break-word",
+                  }}
                   value={attributes.checkboxTitle}
                 />
                 <CloseIcon

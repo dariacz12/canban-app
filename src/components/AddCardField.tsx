@@ -9,6 +9,7 @@ import {
   getListsListCardsTitles,
   updateCardsOrderInList,
 } from "../api";
+import useToastAlert from "../customHooks/useToastAlert";
 
 const Footer = styled.div``;
 type Inputs = {
@@ -35,11 +36,11 @@ const AddCardField = ({
   const navigate = useNavigate();
 
   const queryQlient = useQueryClient();
-
+  const toast = useToastAlert();
   const updateCardsOrderMutation = useMutation(updateCardsOrderInList, {
     onSuccess: () => {},
     onError: () => {
-      alert("Something went wrong!");
+      toast("Something went wrong!", "danger");
     },
     onSettled: () => {
       queryQlient.invalidateQueries([`cardTitle${listId}`]);
@@ -64,7 +65,7 @@ const AddCardField = ({
       });
     },
     onError: () => {
-      alert("Something went wrong!");
+      toast("Something went wrong!", "danger");
     },
     onSettled: () => {
       queryQlient.invalidateQueries([`cardTitle${listId}`]);
@@ -82,7 +83,7 @@ const AddCardField = ({
           placeholder="Enter a card title ..."
           _placeholder={{ fontSize: "sm" }}
           style={{ marginBottom: "10px" }}
-          {...register("title", { required: true, maxLength: 18 })}
+          {...register("title", { required: true, maxLength: 60 })}
         />
         {errors.title?.type === "required" && (
           <span style={{ color: "red" }}>This field is required!</span>
