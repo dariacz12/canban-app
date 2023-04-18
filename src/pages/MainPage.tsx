@@ -18,7 +18,7 @@ import styled from "styled-components";
 import { Image } from "@chakra-ui/react";
 import { Link } from "@chakra-ui/react";
 import { size } from "../size";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { QueryClient, useMutation, useQueryClient } from "react-query";
 import { loginUser } from "../api";
 import { LoginContext } from "../contexts/LoginContext";
@@ -26,9 +26,6 @@ import { redirect, useNavigate } from "react-router-dom";
 import useToastAlert from "../customHooks/useToastAlert";
 
 const MainContainer = styled.div`
-  /* display: flex-;
-  justify-content: center;
-  align-items: center; */
   min-height: 100vh;
 
   @media (max-width: ${size.lg}) {
@@ -70,16 +67,38 @@ export default function MainPage() {
   });
   const { setData } = useContext(LoginContext);
 
+  const [pageLoaded, setPageLoaded] = useState<boolean>();
+
+  useEffect(() => {
+    setPageLoaded(true);
+    const video = videoRef.current;
+    if (video) {
+      video.addEventListener("canplay", () => {
+        video.play();
+      });
+    }
+  }, []);
+
   const onSubmit: SubmitHandler<FormData> = ({ email, password }) => {
     loginNewUser.mutate({ email, password });
   };
   const [show, setShow] = useState<Boolean>(false);
   const handleClick = () => setShow(!show);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (video) {
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise.then(() => {}).catch(() => {});
+      }
+    }
+  }, []);
 
   return (
     <MainContainer>
       <Box
-        // pt={[100, 100, 100, 0]}
         flex="1"
         display="flex"
         flexDirection={"column"}
@@ -138,8 +157,6 @@ export default function MainPage() {
 
       <Box
         maxWidth={"850px"}
-        // minH="100vh"
-        // mt={[10, 10, 10, 0]}
         flex="1"
         display="flex"
         alignItems="center"
@@ -147,17 +164,16 @@ export default function MainPage() {
         marginLeft={"auto"}
         marginRight={"auto"}
       >
-        <video
-          autoPlay
-          loop
-          playsInline
-          src={require("../video/mainpage.mov")}
-        ></video>
-        {/* <Image
-         maxW={[600, 650]}
-          src={require("../photos/mainpage.jpg")}
-          alt="register photo"
-        /> */}
+        {pageLoaded && (
+          <video
+            autoPlay={true}
+            ref={videoRef}
+            loop
+            playsInline
+            muted
+            src={require("../video/mainpage.mov")}
+          ></video>
+        )}
       </Box>
     </MainContainer>
   );

@@ -1,5 +1,6 @@
 import { SubmitHandler, useForm } from "react-hook-form";
 import {
+  Avatar,
   Box,
   Card,
   CardBody,
@@ -20,12 +21,19 @@ import { Image } from "@chakra-ui/react";
 import { Link } from "@chakra-ui/react";
 import { size } from "../size";
 import { useContext, useState } from "react";
-import Dropzone from "../components/Dropzone";
+import Dropzone from "react-dropzone";
 import { useMutation, useQueryClient } from "react-query";
-import { createAccount, loginUser } from "../api";
+import {
+  BASE_URL,
+  createAccount,
+  loginUser,
+  updateUserAvatarId,
+  uploadUserImage,
+} from "../api";
 import { useNavigate } from "react-router-dom";
 import { LoginContext } from "../contexts/LoginContext";
 import useToastAlert from "../customHooks/useToastAlert";
+import { CloudUploadOutlined, UploadOutlined } from "@ant-design/icons";
 
 const MainContainer = styled.div`
   display: flex;
@@ -40,6 +48,11 @@ const MainContainer = styled.div`
 
 const Field = styled.label`
   padding: 15px;
+`;
+const DropzoneWraper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
 `;
 
 export type FormData = {
@@ -57,6 +70,9 @@ export default function RegisterPage() {
   } = useForm<FormData>();
   const queryClient = useQueryClient();
   const toast = useToastAlert();
+  const [avatar, setAvatar] = useState();
+  const [avatarId, setAvatarId] = useState();
+
   const createNewAccount = useMutation(createAccount, {
     onSuccess: () => {
       toast("Success registretion!");
@@ -70,6 +86,7 @@ export default function RegisterPage() {
     onSuccess: (res) => {
       setData({ token: res.data.jwt, refreshToken: "" });
       toast("Success login!");
+      avatarId && updateUserAvatarId({ avatarId, token: res.data.jwt });
       navigate("/dashboard", { replace: true });
     },
     onError: () => {
@@ -82,6 +99,19 @@ export default function RegisterPage() {
 
   const navigate = useNavigate();
 
+  const handleFileUpload = async (file: File) => {
+    try {
+      const form = new FormData();
+      form.append("files", file);
+      const response = await uploadUserImage(form);
+      console.log("response", response.data[0]);
+      setAvatar(response.data[0].url);
+
+      setAvatarId(response.data[0].id);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   const onSubmit = async (data: FormData) => {
     await createNewAccount.mutateAsync(data);
     await loginNewUser.mutateAsync({
@@ -93,12 +123,11 @@ export default function RegisterPage() {
     <MainContainer>
       <Box
         pt={[100, 100, 100, 0]}
-        flex="1"
         display="flex"
         alignItems="center"
         justifyContent="center"
       >
-        <Card minW="450px">
+        <Card minW={[300, 450]} maxW={[300, 450]}>
           <CardHeader>
             <Image
               maxW="200px"
@@ -173,9 +202,39 @@ export default function RegisterPage() {
                     {errors.password && <span>This field is required</span>}
                   </Field>
                   <Field>
-                    <Dropzone></Dropzone>
+                    <FormLabel>Avatar</FormLabel>
+                    <DropzoneWraper>
+                      <Dropzone
+                        onDrop={(acceptedFiles) => {
+                          console.log(acceptedFiles[0]);
+                          handleFileUpload(acceptedFiles[0]);
+                        }}
+                      >
+                        {({ getRootProps, getInputProps }) => (
+                          <section>
+                            <div {...getRootProps()}>
+                              <input {...getInputProps()} />
+                              <CloudUploadOutlined
+                                style={{
+                                  fontSize: "60px",
+                                  color: "#1a202c",
+                                  paddingLeft: "5px",
+                                }}
+                              />
+                            </div>
+                          </section>
+                        )}
+                      </Dropzone>
+                      {avatar && (
+                        <Avatar
+                          size="xl"
+                          name="avatar"
+                          src={`${BASE_URL}${avatar}`}
+                        />
+                      )}
+                    </DropzoneWraper>
                   </Field>
-                  <Button bg="#1a202c" m={3} type="submit" colorScheme="blue">
+                  <Button bg="#1a202c" m={3} type="submit" colorScheme="brand">
                     Register
                   </Button>
                 </form>

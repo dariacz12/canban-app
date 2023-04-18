@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import { message, Upload } from "antd";
-import type { UploadChangeParam } from "antd/es/upload";
-import type { RcFile, UploadFile, UploadProps } from "antd/es/upload/interface";
+import type { RcFile } from "antd/es/upload/interface";
+import { uploadUserImage } from "../api";
 
 const getBase64 = (img: RcFile, callback: (url: string) => void) => {
   const reader = new FileReader();
@@ -26,19 +26,38 @@ const Dropzone: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState<string>();
 
-  const handleChange: UploadProps["onChange"] = (
-    info: UploadChangeParam<UploadFile>
-  ) => {
-    if (info.file.status === "uploading") {
-      setLoading(true);
-      return;
+  const handleFileUpload = async (file: File) => {
+    try {
+      const form = new FormData();
+      form.append("files", file);
+      const response = await uploadUserImage(form);
+      console.log(response.data);
+    } catch (error) {
+      console.log(error);
     }
-    if (info.file.status === "done") {
-      getBase64(info.file.originFileObj as RcFile, (url) => {
-        setLoading(false);
-        setImageUrl(url);
-      });
-    }
+  };
+  const handleChange = ({
+    file,
+    fileList,
+  }: {
+    file: RcFile;
+    fileList: RcFile[];
+  }): void => {
+    handleFileUpload(file);
+
+    // UploadProps["onChange"] = (
+    //   info: UploadChangeParam<UploadFile>
+    // ) => {
+    // if (info.file.status === "uploading") {
+    //   setLoading(true);
+    //   return;
+    // }
+    // if (info.file.status === "done") {
+    //   getBase64(info.file.originFileObj as RcFile, (url) => {
+    //     setLoading(false);
+    //     setImageUrl(url);
+    //   });
+    // }
   };
 
   const uploadButton = (
@@ -52,9 +71,11 @@ const Dropzone: React.FC = () => {
     <Upload
       listType="picture-card"
       showUploadList={false}
-      action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
-      beforeUpload={beforeUpload}
-      onChange={handleChange}
+      action="/upload"
+      maxCount={1}
+      // action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+      // beforeUpload={beforeUpload}
+      // onChange={handleChange}
     >
       {imageUrl ? (
         <img src={imageUrl} alt="avatar" style={{ width: "100%" }} />

@@ -17,7 +17,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import BurgerMenu from "./BurgerMenu";
 import { useMutation, useQuery } from "react-query";
-import { getUserData } from "../api";
+import { BASE_URL, getUserData } from "../api";
 import { useLocation } from "react-router-dom";
 
 const { Header, Content, Footer, Sider } = Layout;
@@ -30,7 +30,9 @@ const DashboardLayout = () => {
   } = theme.useToken();
 
   const { data } = useQuery("userData", getUserData);
+  const avatar = data?.image?.url;
   const location = useLocation();
+
   return (
     <ConfigProvider
       theme={{
@@ -115,7 +117,11 @@ const DashboardLayout = () => {
                     )}
                   </Box>
                   <Avatar
-                    src={require("../photos/avatar.jpg")}
+                    src={
+                      avatar
+                        ? `${BASE_URL}${avatar}`
+                        : require("../photos/avatar.jpg")
+                    }
                     ml={"20px"}
                     style={{ cursor: "pointer" }}
                     onClick={() => navigate("/settings")}
@@ -125,7 +131,11 @@ const DashboardLayout = () => {
                 <Avatar
                   size="md"
                   name="Ryan Florence"
-                  src={require("../photos/avatar.jpg")}
+                  src={
+                    avatar
+                      ? `${BASE_URL}${avatar}`
+                      : require("../photos/avatar.jpg")
+                  }
                   style={{ cursor: "pointer" }}
                   onClick={() => navigate("/settings")}
                 />

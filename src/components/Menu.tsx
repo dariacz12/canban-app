@@ -15,6 +15,7 @@ import { LoginContext } from "../contexts/LoginContext";
 import { useNavigate } from "react-router-dom";
 import AlertDialogNewBoard from "./AlertDialogNewBoard";
 import usePageList from "../customHooks/usePageList";
+import { useQueryClient } from "react-query";
 
 const { Sider } = Layout;
 
@@ -74,13 +75,14 @@ const MenuElement: React.FC = () => {
   const {
     token: { colorBgContainer },
   } = theme.useToken();
-
+  const queryClient = useQueryClient();
   const onClick: MenuProps["onClick"] = (e) => {
     if (e.key === "5item") {
       setData({
         token: "",
         refreshToken: "",
       });
+      queryClient.clear();
       navigate("/login");
     } else if (e.key === "1item") {
       navigate("/dashboard");

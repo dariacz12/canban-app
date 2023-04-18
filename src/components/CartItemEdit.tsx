@@ -179,7 +179,21 @@ const CartItemEdit = ({
             <Wrap ref={cardTitleInputWraperRef}>
               <form onSubmit={handleSubmit(onSubmitTitle)}>
                 <Input
-                  maxW={"380px"}
+                  maxW={
+                    mediaQuery === "xs"
+                      ? " 260px"
+                      : mediaQuery === "sm"
+                      ? " 470px"
+                      : mediaQuery === "md"
+                      ? " 620px"
+                      : mediaQuery === "lg"
+                      ? " 620px"
+                      : mediaQuery === "xl"
+                      ? " 620px"
+                      : mediaQuery === "xxl"
+                      ? " 620px"
+                      : "620px"
+                  }
                   _placeholder={{
                     fontWeight: "bold",
                     fontSize: "sm",
