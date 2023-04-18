@@ -19,8 +19,10 @@ type LoginData = {
 type UserPersonalData = {
   email: string;
   username: string;
-  image: string;
   id: number | undefined;
+  image: {
+    url: string;
+  };
 };
 type TableData = {
   title: string;
@@ -162,6 +164,12 @@ type CardtData = {
   id: string;
 };
 
+export const uploadUserImage = async (formData: FormData) =>
+  axios.post(`${BASE_URL}/api/upload`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
 export const createAccount = async ({
   email,
   username,
@@ -237,7 +245,7 @@ export const resetPassword = async ({
   );
 export const getUserData = async (): Promise<UserPersonalData> => {
   return (
-    await axios.get(`${BASE_URL}/api/users/me`, {
+    await axios.get(`${BASE_URL}/api/users/me?populate=*`, {
       headers: {
         Authorization: `Bearer ${
           JSON.parse(localStorage.getItem("loginData") || "").token
@@ -271,6 +279,29 @@ export const updateUserEmail = async ({ email }: { email: string }) =>
         Authorization: `Bearer ${
           JSON.parse(localStorage.getItem("loginData") || "").token
         }`,
+      },
+    }
+  );
+export const updateUserAvatarId = async ({
+  avatarId,
+  token,
+}: {
+  avatarId: number;
+  token: string | null;
+}) =>
+  axios.put(
+    `${BASE_URL}/api/user/me`,
+    {
+      image: avatarId,
+    },
+    {
+      headers: {
+        Authorization:
+          token === null
+            ? `Bearer ${
+                JSON.parse(localStorage.getItem("loginData") || "").token
+              }`
+            : `Bearer ${token}`,
       },
     }
   );

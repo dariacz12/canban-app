@@ -21,7 +21,7 @@ import {
 import AlertDialogMoveList from "./AlertDialogMoveList";
 import { useDisclosure } from "@chakra-ui/react";
 import useToastAlert from "../customHooks/useToastAlert";
-
+import useMediaQuery, { MediaQueryKey } from "use-media-antd-query";
 type MenuItem = Required<MenuProps>["items"][number];
 
 function getItem(
@@ -48,7 +48,6 @@ const items: MenuItem[] = [
   ]),
   getItem("Actions", "sub2", <AppstoreOutlined />, [
     getItem("Move", "5", <ArrowForwardIcon />),
-    // getItem("Copy", "6", <CopyIcon />),
     getItem("Delete", "7", <DeleteIcon style={{ color: "dimgray" }} />),
   ]),
 ];
@@ -135,7 +134,7 @@ const MenuCardItemEdit = ({
       setOpenKeys(latestOpenKey ? [latestOpenKey] : []);
     }
   };
-
+  const mediaQuery = useMediaQuery();
   return (
     <>
       <Menu
@@ -143,7 +142,21 @@ const MenuCardItemEdit = ({
         mode="inline"
         openKeys={openKeys}
         onOpenChange={onOpenChange}
-        style={{ maxWidth: "200px", paddingBottom: "20px" }}
+        style={{
+          paddingBottom: "20px",
+          maxWidth:
+            mediaQuery === "sm"
+              ? " 200px"
+              : mediaQuery === "md"
+              ? " 200px"
+              : mediaQuery === "lg"
+              ? "200px"
+              : mediaQuery === "xl"
+              ? "200px"
+              : mediaQuery === "xxl"
+              ? "200px"
+              : "80px",
+        }}
         items={items}
       />
       <AlertDialogMoveList
