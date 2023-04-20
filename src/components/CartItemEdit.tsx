@@ -1,11 +1,15 @@
 import {
   Box,
+  Button,
   Image,
   Input,
   Modal,
   ModalBody,
   ModalCloseButton,
   ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
   Text,
   Textarea,
   useDisclosure,
@@ -16,12 +20,13 @@ import { useForm } from "react-hook-form";
 import styled from "styled-components";
 import AlertDialogAddCheckList from "./AlertDialogAddChecklist";
 import MenuCardItemEdit from "./MenuCardItemEdit";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import AlertDialogAddAttachment from "./AlertDialogAddAttachment";
 import AlertDialogAddCover from "./AlertDialogAddCover";
 import Ckecklist from "./Ckecklist";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import {
+  BASE_URL,
   getCardData,
   getListsToDoListTitles,
   updateCardDescription,
@@ -29,12 +34,22 @@ import {
 } from "../api";
 import useClickOutside from "../customHooks/useClickOutside";
 import useToastAlert from "../customHooks/useToastAlert";
+import { AttachmentIcon } from "@chakra-ui/icons";
+import AttachmentListElement from "./AttachmentListElement";
 const Wrap = styled.div``;
 const Main = styled.div`
   display: flex;
   width: 100%;
 `;
 const ToDoListsContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  row-gap: 4;
+  overflow: scroll;
+  flex: 1;
+  max-height: 700px;
+`;
+const AttachmentContainer = styled.div`
   display: flex;
   flex-direction: column;
   row-gap: 4;
@@ -54,6 +69,13 @@ const TextAriaContainer = styled.div``;
 type Inputs = {
   title: string;
   description: string;
+};
+export type Media = {
+  id: number;
+  attributes: {
+    name: string;
+    url: string;
+  };
 };
 const CartItemEdit = ({
   isOpen,
@@ -151,10 +173,11 @@ const CartItemEdit = ({
       <Modal isOpen={isOpen && !isOpenCover} onClose={onClose}>
         <ModalContent
           style={{
-            maxHeight: "1000px",
+            maxHeight: "1500px",
             maxWidth: "700px",
             top: "80px",
             margin: " 0px 20px",
+            paddingBottom: "40px",
           }}
         >
           <ModalCloseButton />
@@ -308,6 +331,18 @@ const CartItemEdit = ({
                       }
                     )}
                   </ToDoListsContainer>
+                  {data?.attributes.media.data && (
+                    <AttachmentContainer>
+                      {data?.attributes.media.data.map(({ attributes, id }) => (
+                        <AttachmentListElement
+                          attachmentIds={data?.attributes.media.data}
+                          attributes={attributes}
+                          id={id}
+                          cardId={cardId}
+                        />
+                      ))}
+                    </AttachmentContainer>
+                  )}
                 </>
               </RightMain>
             </Main>
@@ -321,9 +356,11 @@ const CartItemEdit = ({
         cardId={cardId}
       />
       <AlertDialogAddAttachment
+        attachmentIds={data?.attributes.media.data}
         isOpen={isOpenAttachment}
         onClose={onCloseAttachment}
         cancelRef={cancelRef}
+        cardId={String(cardId)}
       />
       <AlertDialogAddCover
         cardId={String(cardId)}

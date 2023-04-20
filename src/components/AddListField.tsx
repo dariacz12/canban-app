@@ -46,7 +46,7 @@ const AddListField = ({
   const { data: boardData } = useQuery(`tableListsList${tableId}`, () =>
     getTableListsList(String(tableId))
   );
-  console.log("listOrder", boardData);
+
   const addNewList = useMutation(createList, {
     onSuccess: (data) => {
       let listOrder: string[] = [];

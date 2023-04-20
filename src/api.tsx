@@ -1,5 +1,6 @@
 import axios from "axios";
 import { isConstructorDeclaration } from "typescript";
+import { Media } from "./components/CartItemEdit";
 
 export const BASE_URL = "http://localhost:1337";
 
@@ -106,6 +107,17 @@ type ListsCheckboxes = {
 type CardData = {
   id: number;
   attributes: {
+    media: {
+      data: [
+        {
+          id: number;
+          attributes: {
+            name: string;
+            url: string;
+          };
+        }
+      ];
+    };
     cover: string;
     title: string;
     description: string;
@@ -165,6 +177,12 @@ type CardtData = {
 };
 
 export const uploadUserImage = async (formData: FormData) =>
+  axios.post(`${BASE_URL}/api/upload`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+export const uploadAttachment = async (formData: FormData) =>
   axios.post(`${BASE_URL}/api/upload`, formData, {
     headers: {
       "Content-Type": "multipart/form-data",
@@ -302,6 +320,54 @@ export const updateUserAvatarId = async ({
                 JSON.parse(localStorage.getItem("loginData") || "").token
               }`
             : `Bearer ${token}`,
+      },
+    }
+  );
+export const updateAttachmentId = async ({
+  attachmentId,
+  cardId,
+  attachmentIds,
+}: {
+  attachmentId: number;
+  cardId: string;
+  attachmentIds: Media[] | undefined;
+}) =>
+  axios.put(
+    `${BASE_URL}/api/cards/${cardId}`,
+    {
+      data: {
+        media: attachmentIds
+          ? [...attachmentIds.map(({ id }) => String(id)), String(attachmentId)]
+          : [String(attachmentId)],
+      },
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${
+          JSON.parse(localStorage.getItem("loginData") || "").token
+        }`,
+      },
+    }
+  );
+export const deleteAttachmentId = async ({
+  attachmentIds,
+  cardId,
+}: {
+  attachmentIds: Media[] | undefined;
+  cardId: string;
+}) =>
+  axios.put(
+    `${BASE_URL}/api/cards/${cardId}`,
+    {
+      data: {
+        media: attachmentIds,
+      },
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${
+          JSON.parse(localStorage.getItem("loginData") || "").token
+        }`,
       },
     }
   );

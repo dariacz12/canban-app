@@ -104,7 +104,7 @@ export default function RegisterPage() {
       const form = new FormData();
       form.append("files", file);
       const response = await uploadUserImage(form);
-      console.log("response", response.data[0]);
+
       setAvatar(response.data[0].url);
 
       setAvatarId(response.data[0].id);
@@ -206,7 +206,6 @@ export default function RegisterPage() {
                     <DropzoneWraper>
                       <Dropzone
                         onDrop={(acceptedFiles) => {
-                          console.log(acceptedFiles[0]);
                           handleFileUpload(acceptedFiles[0]);
                         }}
                       >
