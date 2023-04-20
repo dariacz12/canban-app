@@ -49,10 +49,9 @@ const AddCardField = ({
   const { data: listData } = useQuery(`cardTitle${listId}`, () =>
     getListsListCardsTitles(String(listId))
   );
-  console.log("cardOrder", listData);
+
   const addNewCard = useMutation(createCard, {
     onSuccess: (data) => {
-      console.log("data", data);
       navigate(`/tablepage/${tableId}`);
       resetField("title");
       let cardOrder: number[] = [];

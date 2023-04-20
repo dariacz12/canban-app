@@ -35,13 +35,11 @@ const PhotoForm = () => {
       const form = new FormData();
       form.append("files", file);
       const response = await uploadUserImage(form);
-      console.log("response", response.data[0]);
+
       setAvatarUploded(response.data[0].url);
 
       setAvatarId(response.data[0].id);
-    } catch (error) {
-      console.log(error);
-    }
+    } catch (error) {}
   };
   const queryClient = useQueryClient();
   const onSubmit = async () => {
@@ -73,7 +71,6 @@ const PhotoForm = () => {
           </Center>
           <Dropzone
             onDrop={(acceptedFiles) => {
-              console.log(acceptedFiles[0]);
               handleFileUpload(acceptedFiles[0]);
             }}
           >

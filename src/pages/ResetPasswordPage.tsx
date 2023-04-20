@@ -55,7 +55,6 @@ export default function ResetPasswordPage() {
   const navigate = useNavigate();
   const toast = useToastAlert();
   let { code } = useParams();
-  console.log("code", code);
 
   const resetUserPassword = useMutation(resetPassword, {
     onSuccess: (res) => {

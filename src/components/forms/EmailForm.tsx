@@ -20,7 +20,6 @@ const EmailForm = () => {
   } = useForm<EmailForm>();
   const toast = useToastAlert();
   const { data, refetch } = useQuery("userData", getUserData);
-  console.log("email", data?.email);
   const queryClientUpdate = useQueryClient();
   const updateUserEmailMutation = useMutation(updateUserEmail, {
     onSuccess: (data) => {
