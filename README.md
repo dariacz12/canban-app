@@ -47,8 +47,7 @@ To learn React, check out the [React documentation](https://reactjs.org/).
 
 # How to run backend
 
-`cd kanbanapi`
+`cd kanban-strapi`
 
-`. ./venv/bin/activate`
+`yarn strapi develop`
 
-`python3 manage.py runserver`
